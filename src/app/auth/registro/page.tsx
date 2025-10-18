@@ -18,11 +18,11 @@ export default function RegisterPage() {
   const invite = searchParams.get("invite");
   const [allowed, setAllowed] = useState<boolean | null>(null);
   const [form, setForm] = useState({
-    nombre: "",
-    apellido_paterno: "",
-    apellido_materno: "",
+    first_name: "",
+    last_name: "",
+    second_last_name: "",
     email: "",
-    telefono: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -62,11 +62,11 @@ export default function RegisterPage() {
 
     // Validaciones básicas
     if (
-      !form.nombre ||
-      !form.apellido_paterno ||
-      !form.apellido_materno ||
+      !form.first_name ||
+      !form.last_name ||
+      !form.second_last_name ||
       !form.email ||
-      !form.telefono ||
+      !form.phone ||
       !form.password ||
       !form.confirmPassword
     ) {
@@ -90,7 +90,7 @@ export default function RegisterPage() {
       console.error(err);
       setError("Ocurrió un error al registrar. Intenta de nuevo.");
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 1500);
     }
   };
 
@@ -156,7 +156,7 @@ export default function RegisterPage() {
               <input
                 type="text"
                 name="nombre"
-                value={form.nombre}
+                value={form.first_name}
                 onChange={handleChange}
                 required
                 className="mt-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#101f37]"
@@ -170,7 +170,7 @@ export default function RegisterPage() {
               <input
                 type="text"
                 name="apellido_paterno"
-                value={form.apellido_paterno}
+                value={form.last_name}
                 onChange={handleChange}
                 required
                 className="mt-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#101f37]"
@@ -184,7 +184,7 @@ export default function RegisterPage() {
               <input
                 type="text"
                 name="apellido_materno"
-                value={form.apellido_materno}
+                value={form.second_last_name}
                 onChange={handleChange}
                 required
                 className="mt-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#101f37]"
@@ -213,7 +213,7 @@ export default function RegisterPage() {
               <input
                 type="tel"
                 name="telefono"
-                value={form.telefono}
+                value={form.phone}
                 onChange={handleChange}
                 required
                 className="mt-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#101f37]"

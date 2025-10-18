@@ -12,10 +12,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Dashboard App",
-  description: "Dashboard profesional con sidebar y header moderno",
-};
 
 export default async function RootLayout({
   children,
@@ -29,6 +25,16 @@ export default async function RootLayout({
   }
   return (
     <html lang="es">
+            <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+          name="description"
+          content="Timetrek - aplicación de envíos y logística"
+        />
+        <link rel="icon" href="/favicon.ico" />
+        <title>Timetrek couriers</title>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans bg-gray-50 text-gray-900`}
       >
