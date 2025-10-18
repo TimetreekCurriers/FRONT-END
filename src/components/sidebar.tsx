@@ -18,7 +18,6 @@ interface SidebarProps {
 
 export default function Sidebar({ session, isOpen, onClose }: SidebarProps) {
   const sidebarRef = useRef<HTMLDivElement>(null);
-  console.log("sessionsession",session)
   const admin = session?.user?.role === "admin";
 
   useEffect(() => {

@@ -12,8 +12,9 @@ const nextConfig: NextConfig = {
     // Variables para el cliente
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_NEXTAUTH_URL:
-      process.env.NEXT_AUTH_URL || "http://localhost:3000",
+      process.env.NEXT_AUTH_URL ,
     NEXT_PUBLIC_X_API_KEY: process.env.NEXT_PUBLIC_X_API_KEY,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
 
     // JWT secret de desarrollo (no se debe usar en producción)
     NEXT_JWT_SECRET:
