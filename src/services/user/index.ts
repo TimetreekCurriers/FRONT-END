@@ -2,6 +2,7 @@
 import axios from "axios";
 import type { UserCollectionInterface } from "@/type/user.interface";
 import { PageMetaDto } from "@/type/general";
+import * as multer from "multer";
 
 const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
 export const getUser = async (
@@ -47,14 +48,45 @@ export const updateUser = async (
   );
   return data;
 };
+export const inviteUser = async (
+  name: string,
+  email: string
+): Promise<UserCollectionInterface> => {
+  const { data } = await axios.post(
+    `${NEXT_PUBLIC_API_URL}/invite`,
+    { name,email },
+    {
+      headers: {
+        "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY || "",
+      },
+    }
+  );
+  return data;
+};
 
 export const register = async (
   token: string,
-  user: Partial<UserCollectionInterface>,
+  user: Partial<UserCollectionInterface>
 ): Promise<UserCollectionInterface> => {
-  const { data } = await axios.put(
+  const { data } = await axios.post(
     `${NEXT_PUBLIC_API_URL}/invite/accept`,
     { user, token },
+    {
+      headers: {
+        "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY || "",
+      },
+    }
+  );
+  return data;
+};
+
+export const uploadTaxCertificate = async (
+  userid: string,
+  formData: any
+): Promise<UserCollectionInterface> => {
+  const { data } = await axios.put(
+    `${NEXT_PUBLIC_API_URL}/user/certificate/${userid}`,
+    formData,
     {
       headers: {
         "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY || "",

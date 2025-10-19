@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { jwtDecode } from "jwt-decode";
 import { register } from "@/services/user";
+import { Toast } from "@/components/toast";
 
 interface InvitePayload {
   email: string;
@@ -17,6 +18,15 @@ export default function RegisterPage() {
   const searchParams = useSearchParams();
   const invite = searchParams.get("invite");
   const [allowed, setAllowed] = useState<boolean | null>(null);
+  const [toast, setToast] = useState<{
+    visible: boolean;
+    message: string;
+    type?: "success" | "error";
+  }>({
+    visible: false,
+    message: "",
+    type: "success",
+  });
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -52,6 +62,19 @@ export default function RegisterPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+
+    // Validaciones dinámicas en tiempo real
+    if (
+      ["first_name", "last_name", "second_last_name"].includes(name) &&
+      /[^a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]/.test(value)
+    ) {
+      return; // no permite números o símbolos
+    }
+
+    if (name === "phone" && /[^0-9]/.test(value)) {
+      return; // solo números
+    }
+
     setForm({ ...form, [name]: value });
   };
 
@@ -74,6 +97,31 @@ export default function RegisterPage() {
       return;
     }
 
+    // Validación: solo letras
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/;
+    if (
+      !nameRegex.test(form.first_name) ||
+      !nameRegex.test(form.last_name) ||
+      !nameRegex.test(form.second_last_name)
+    ) {
+      setError("El nombre y apellidos solo deben contener letras");
+      return;
+    }
+
+    // Validación: teléfono (solo números, 10 dígitos)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(form.phone)) {
+      setError("El teléfono debe tener exactamente 10 dígitos");
+      return;
+    }
+
+    // Validación: correo electrónico
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      setError("El formato del correo electrónico no es válido");
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
       setError("Las contraseñas no coinciden");
       return;
@@ -83,14 +131,21 @@ export default function RegisterPage() {
 
     try {
       await register(invite, form);
-
       setSuccess(true);
-      setTimeout(() => router.push("/auth/login"), 1500);
+      setToast({
+        visible: true,
+        message: "Registro exitoso ✔",
+        type: "success",
+      });
+      setTimeout(() => router.push("/auth/iniciar-sesion"), 1000);
     } catch (err) {
       console.error(err);
-      setError("Ocurrió un error al registrar. Intenta de nuevo.");
-    } finally {
-      setTimeout(() => setLoading(false), 1500);
+      setToast({
+        visible: true,
+        message: "Falló el registro",
+        type: "error",
+      });
+      setLoading(false);
     }
   };
 
@@ -128,7 +183,6 @@ export default function RegisterPage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
     >
-      {/* Lado izquierdo azul con logo */}
       <div className="w-full md:w-1/4 bg-[#101f37] flex justify-center items-center py-8">
         <Image
           src="https://i.postimg.cc/y6F7LtXv/Captura-de-pantalla-2025-09-19-a-la-s-8-14-04-p-m.png"
@@ -138,7 +192,6 @@ export default function RegisterPage() {
         />
       </div>
 
-      {/* Lado derecho con formulario */}
       <div className="w-full md:w-3/4 flex justify-center items-center bg-gray-100 py-8">
         <motion.div
           className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-8"
@@ -155,7 +208,7 @@ export default function RegisterPage() {
               <label className="text-gray-700 font-medium">Nombre</label>
               <input
                 type="text"
-                name="nombre"
+                name="first_name"
                 value={form.first_name}
                 onChange={handleChange}
                 required
@@ -169,7 +222,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="text"
-                name="apellido_paterno"
+                name="last_name"
                 value={form.last_name}
                 onChange={handleChange}
                 required
@@ -183,7 +236,7 @@ export default function RegisterPage() {
               </label>
               <input
                 type="text"
-                name="apellido_materno"
+                name="second_last_name"
                 value={form.second_last_name}
                 onChange={handleChange}
                 required
@@ -212,9 +265,10 @@ export default function RegisterPage() {
               <label className="text-gray-700 font-medium">Teléfono</label>
               <input
                 type="tel"
-                name="telefono"
+                name="phone"
                 value={form.phone}
                 onChange={handleChange}
+                maxLength={10}
                 required
                 className="mt-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-[#101f37]"
               />
@@ -256,10 +310,10 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-4 px-6 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-all duration-300 font-medium flex justify-center items-center gap-2"
+              className="mt-4 px-6 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-all duration-300 font-medium flex justify-center items-center gap-2 cursor-pointer"
             >
               {loading ? (
-                <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5"></span>
+                <span className="animate-spin  border-2 border-white border-t-transparent rounded-full w-5 h-5 "></span>
               ) : (
                 "Registrarme"
               )}
@@ -267,6 +321,13 @@ export default function RegisterPage() {
           </form>
         </motion.div>
       </div>
+
+      <Toast
+        visible={toast.visible}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ ...toast, visible: false })}
+      />
     </motion.div>
   );
 }

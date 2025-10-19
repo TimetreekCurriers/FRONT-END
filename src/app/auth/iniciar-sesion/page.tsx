@@ -5,11 +5,12 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { getUser } from "@/services/user";
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const [isRecovering, setIsRecovering] = useState(false); 
+  const [isRecovering, setIsRecovering] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,6 +43,13 @@ export default function LoginPage() {
     if (res?.error) {
       setError("Email o contraseña incorrectos");
     } else {
+      const user = await getUser(form.email);
+      if (
+        !user?.tax_status_certificate ||
+        user?.tax_status_certificate === ""
+      ) {
+        router.push("/cuenta/perfil");
+      }
       router.push("/cuenta/cotizador");
     }
   };
@@ -63,8 +71,8 @@ export default function LoginPage() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setSuccess(true);
     } catch (err) {
-      console.log("errerr",err)
-      setError("Ocurrió un error. Intenta de nuevo más tarde.",);
+      console.log("errerr", err);
+      setError("Ocurrió un error. Intenta de nuevo más tarde.");
     } finally {
       setLoading(false);
     }
@@ -97,11 +105,18 @@ export default function LoginPage() {
         >
           {!isRecovering ? (
             <>
-              <h1 className="text-2xl font-semibold text-center mb-6">Iniciar sesión</h1>
+              <h1 className="text-2xl font-semibold text-center mb-6">
+                Iniciar sesión
+              </h1>
 
-              <form onSubmit={handleLoginSubmit} className="flex flex-col gap-4">
+              <form
+                onSubmit={handleLoginSubmit}
+                className="flex flex-col gap-4"
+              >
                 <div className="flex flex-col">
-                  <label className="text-gray-700 font-medium">Correo electrónico</label>
+                  <label className="text-gray-700 font-medium">
+                    Correo electrónico
+                  </label>
                   <input
                     type="email"
                     name="email"
@@ -114,7 +129,9 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-gray-700 font-medium">Contraseña</label>
+                  <label className="text-gray-700 font-medium">
+                    Contraseña
+                  </label>
                   <input
                     type="password"
                     name="password"
@@ -126,7 +143,9 @@ export default function LoginPage() {
                   />
                 </div>
 
-                {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+                {error && (
+                  <div className="text-red-500 text-sm mt-1">{error}</div>
+                )}
 
                 <button
                   type="submit"
@@ -152,14 +171,22 @@ export default function LoginPage() {
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-semibold text-center mb-4">Recuperar contraseña</h1>
+              <h1 className="text-2xl font-semibold text-center mb-4">
+                Recuperar contraseña
+              </h1>
               <p className="text-gray-600 text-sm text-center mb-6">
-                Ingresa tu correo electrónico y te enviaremos un enlace para recuperar tu contraseña.
+                Ingresa tu correo electrónico y te enviaremos un enlace para
+                recuperar tu contraseña.
               </p>
 
-              <form onSubmit={handleRecoverSubmit} className="flex flex-col gap-4">
+              <form
+                onSubmit={handleRecoverSubmit}
+                className="flex flex-col gap-4"
+              >
                 <div className="flex flex-col">
-                  <label className="text-gray-700 font-medium">Correo electrónico</label>
+                  <label className="text-gray-700 font-medium">
+                    Correo electrónico
+                  </label>
                   <input
                     type="email"
                     name="email"
@@ -171,10 +198,13 @@ export default function LoginPage() {
                   />
                 </div>
 
-                {error && <div className="text-red-500 text-sm mt-1">{error}</div>}
+                {error && (
+                  <div className="text-red-500 text-sm mt-1">{error}</div>
+                )}
                 {success && (
                   <div className="text-green-500 text-sm mt-1">
-                    ¡Revisa tu correo! Te hemos enviado un enlace para recuperar tu contraseña.
+                    ¡Revisa tu correo! Te hemos enviado un enlace para recuperar
+                    tu contraseña.
                   </div>
                 )}
 

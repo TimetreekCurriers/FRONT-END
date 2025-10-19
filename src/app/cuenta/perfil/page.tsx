@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { getUser, updateUser } from "@/services/user";
+import { motion } from "framer-motion";
+import { getUser, updateUser, uploadTaxCertificate } from "@/services/user";
 import type { UserCollectionInterface } from "@/type/user.interface";
 import { useAuth } from "@/components/authProvider";
 import { Toast } from "@/components/toast";
+
 export default function MiCuentaPage() {
   const { session, setSession } = useAuth();
   const [user, setUser] = useState<UserCollectionInterface | null>(null);
@@ -16,23 +17,23 @@ export default function MiCuentaPage() {
     phone: "",
     email: "",
   });
-  const [toast, setToast] = useState<{
-    visible: boolean;
-    message: string;
-    type?: "success" | "error";
-  }>({
+  const [toast, setToast] = useState({
     visible: false,
     message: "",
-    type: "success",
+    type: "success" as "success" | "error",
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [changed, setChanged] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
   const [loadingSave, setLoadingSave] = useState(false);
 
+  // Estados para constancia fiscal
+  const [taxFile, setTaxFile] = useState<File | null>(null);
+  const [existingTaxFile, setExistingTaxFile] = useState<string | null>(null);
+  const [loadingTax, setLoadingTax] = useState(false);
+
   const phoneRegex = /^\d{10}$/;
 
-  // Fetch user
   useEffect(() => {
     const fetchUser = async () => {
       if (!session?.user?.sub) return;
@@ -47,6 +48,10 @@ export default function MiCuentaPage() {
           phone: data.phone || "",
           email: data.email || "",
         });
+        // Si existe constancia fiscal, guardamos la URL
+        if (data.tax_status_certificate) {
+          setExistingTaxFile(data.tax_status_certificate);
+        }
       } catch (err) {
         console.error("Error al obtener el usuario", err);
       } finally {
@@ -56,7 +61,6 @@ export default function MiCuentaPage() {
     fetchUser();
   }, [session?.user?.sub]);
 
-  // Detectar cambios
   useEffect(() => {
     if (!user) return;
     const hasChanges =
@@ -67,26 +71,20 @@ export default function MiCuentaPage() {
     setChanged(hasChanges);
   }, [form, user]);
 
-  // Manejo inputs con filtrado en tiempo real
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
     if (["first_name", "last_name", "second_last_name"].includes(name)) {
-      // Permitir solo letras y espacios
       const filteredValue = value.replace(/[^A-Za-z\s]/g, "");
       setForm((prev) => ({ ...prev, [name]: filteredValue }));
     } else if (name === "phone") {
-      // Permitir solo números
       const filteredValue = value.replace(/\D/g, "");
       setForm((prev) => ({ ...prev, [name]: filteredValue }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
-
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // Guardar cambios
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!changed || !user) return;
@@ -132,7 +130,6 @@ export default function MiCuentaPage() {
     }
   };
 
-  // Reset
   const handleReset = () => {
     if (!user) return;
     setForm({
@@ -145,14 +142,41 @@ export default function MiCuentaPage() {
     setErrors({});
   };
 
-  // Animaciones
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.05 } },
-  };
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 },
+  const handleTaxUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!taxFile) {
+      setToast({
+        visible: true,
+        message: "Selecciona un archivo antes de subirlo ❌",
+        type: "error",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", taxFile);
+
+    try {
+      setLoadingTax(true);
+      await uploadTaxCertificate(session!.user!.sub, formData);
+      setToast({
+        visible: true,
+        message: "Constancia de situación fiscal subida correctamente ✔",
+        type: "success",
+      });
+      // Actualizamos el preview del archivo con el nuevo
+      setExistingTaxFile(URL.createObjectURL(taxFile));
+      setTaxFile(null);
+    } catch (err) {
+      console.error("Error al subir constancia fiscal", err);
+      setToast({
+        visible: true,
+        message: "Error al subir el archivo ❌",
+        type: "error",
+      });
+    } finally {
+      setLoadingTax(false);
+    }
   };
 
   if (loadingUser) return <p>Cargando...</p>;
@@ -169,21 +193,17 @@ export default function MiCuentaPage() {
   return (
     <motion.div
       className="p-6 w-full"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
     >
-      <motion.h1
-        className="text-2xl font-semibold mb-6"
-        variants={itemVariants}
-      >
+      <motion.h1 className="text-2xl font-semibold mb-6">
         Mi Cuenta
       </motion.h1>
 
+      {/* FORMULARIO PERFIL */}
       <motion.form
         onSubmit={handleSave}
-        className="flex flex-wrap gap-6 items-end w-full"
-        variants={itemVariants}
+        className="flex flex-wrap gap-6 items-end w-full mb-10"
       >
         {fields.map((field) => (
           <div key={field.name} className="flex flex-col flex-1 min-w-[260px]">
@@ -234,6 +254,56 @@ export default function MiCuentaPage() {
           </button>
         </div>
       </motion.form>
+
+      {/* SECCIÓN DATOS FISCALES */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h2 className="text-xl font-semibold mb-6">Datos fiscales</h2>
+        <p className="text-gray-600 mb-6">
+          Si requieres factura es necesario subir tu constancia de situación fiscal
+          (PDF o imagen legible).
+        </p>
+
+        {/* Mostrar archivo existente */}
+        {existingTaxFile && (
+          <div className="mb-6">
+            <a
+              href={existingTaxFile}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-#101f37 underline hover:text-blue-800"
+            >
+              Ver actual constancia fiscal
+            </a>
+          </div>
+        )}
+
+        <form onSubmit={handleTaxUpload} className="flex  gap-4 w-full ">
+          <input
+            type="file"
+            accept=".pdf,image/*"
+            onChange={(e) => setTaxFile(e.target.files?.[0] || null)}
+            className="border border-gray-300 rounded-md px-3 py-2 text-base cursor-pointer focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]"
+          />
+
+          <button
+            type="submit"
+            disabled={loadingTax}
+            className="px-6 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-all duration-300 font-medium flex items-center gap-2 w-fit cursor-pointer"
+          >
+            {loadingTax ? (
+              <>
+                <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5"></span>
+                Subiendo...
+              </>
+            ) : (
+              "Subir constancia"
+            )}
+          </button>
+        </form>
+      </motion.div>
 
       <Toast
         visible={toast.visible}

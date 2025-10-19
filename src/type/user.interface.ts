@@ -9,6 +9,7 @@ export interface UserCollectionInterface {
     readonly birthdate?: Date;
     readonly role?: string;
     readonly gender?: string;
+    readonly tax_status_certificate?: string;
     readonly phone?: string;
     readonly rfc?: string;
     readonly curp?: string;

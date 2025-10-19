@@ -11,12 +11,13 @@ import { formatDate, statusMap } from "@/app/utils";
 import RechargeModal from "@/components/transferenciaModal";
 
 export default function OrderDetailPage() {
+  const searchParams = useSearchParams();
+  const origen = searchParams.get("origen");
   const params = useParams();
   const _id = params.envio as string;
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
-  
+
   const [shipment, setShipment] = useState<ShipmentCollectionInterface | null>(
     null
   );
@@ -86,7 +87,6 @@ export default function OrderDetailPage() {
 
   // --- Botón de regresar dinámico ---
   const handleBackClick = () => {
-    const origen = searchParams.get("origen");
     if (origen) {
       router.push(`/cuenta/${origen}`);
     } else {
@@ -119,12 +119,14 @@ export default function OrderDetailPage() {
           >
             ← Regresar
           </button>
-          <Link
-            href="/cuenta/cotizador"
-            className="px-4 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-colors cursor-pointer"
-          >
-            Nuevo envío
-          </Link>
+          {!origen.includes("usuarios") && (
+            <Link
+              href="/cuenta/cotizador"
+              className="px-4 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-colors cursor-pointer"
+            >
+              Nuevo envío
+            </Link>
+          )}
         </div>
         <div className="flex gap-4 items-center text-gray-600 flex-wrap">
           <span>
@@ -135,8 +137,7 @@ export default function OrderDetailPage() {
             <b>{new Date(shipment.created_at || "").toLocaleString()}</b>
           </span>
           <span className="text-green-600">
-          <b>{statusMap[shipment?.status || ""] || shipment?.status}</b>
-
+            <b>{statusMap[shipment?.status || ""] || shipment?.status}</b>
           </span>
         </div>
       </motion.div>
@@ -296,7 +297,6 @@ export default function OrderDetailPage() {
           </motion.div>
         )}
       </AnimatePresence>
-
     </motion.div>
   );
 }
