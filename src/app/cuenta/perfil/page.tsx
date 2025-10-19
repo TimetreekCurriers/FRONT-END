@@ -280,29 +280,33 @@ export default function MiCuentaPage() {
           </div>
         )}
 
-        <form onSubmit={handleTaxUpload} className="flex  gap-4 w-full ">
-          <input
-            type="file"
-            accept=".pdf,image/*"
-            onChange={(e) => setTaxFile(e.target.files?.[0] || null)}
-            className="border border-gray-300 rounded-md px-3 py-2 text-base cursor-pointer focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]"
-          />
+<form
+  onSubmit={handleTaxUpload}
+  className="flex flex-col sm:flex-row gap-4 w-full"
+>
+  <input
+    type="file"
+    accept=".pdf,image/*"
+    onChange={(e) => setTaxFile(e.target.files?.[0] || null)}
+    className="border border-gray-300 rounded-md px-3 py-2 text-base cursor-pointer focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]"
+  />
 
-          <button
-            type="submit"
-            disabled={loadingTax}
-            className="px-6 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-all duration-300 font-medium flex items-center gap-2 w-fit cursor-pointer"
-          >
-            {loadingTax ? (
-              <>
-                <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5"></span>
-                Subiendo...
-              </>
-            ) : (
-              "Subir constancia"
-            )}
-          </button>
-        </form>
+  <button
+    type="submit"
+    disabled={loadingTax}
+    className="px-6 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-all duration-300 font-medium flex items-center gap-2 w-full sm:w-auto cursor-pointer"
+  >
+    {loadingTax ? (
+      <>
+        <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5 "></span>
+        Subiendo...
+      </>
+    ) : (
+      "Subir constancia"
+    )}
+  </button>
+</form>
+
       </motion.div>
 
       <Toast
