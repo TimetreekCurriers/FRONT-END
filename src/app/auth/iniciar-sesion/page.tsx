@@ -3,9 +3,11 @@
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { signIn, getSession } from "next-auth/react";
 import { getUser } from "@/services/user";
+
+import { useSession } from "next-auth/react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,27 +33,33 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-
     const res = await signIn("credentials", {
       redirect: false,
       email: form.email,
       password: form.password,
     });
 
-    setLoading(false);
 
     if (res?.error) {
       setError("Email o contraseña incorrectos");
     } else {
-      const user = await getUser(form.email);
+      const session = await getSession();
+      const user = await getUser(session?.user?.sub);
       if (
         !user?.tax_status_certificate ||
         user?.tax_status_certificate === ""
       ) {
         router.push("/cuenta/perfil");
+      } else{
+        router.push("/cuenta/cotizador");
+
       }
-      router.push("/cuenta/cotizador");
     }
+
+    setTimeout(() => {
+      setLoading(false)
+    }, 500);
+    
   };
 
   const handleRecoverSubmit = async (e: React.FormEvent) => {
