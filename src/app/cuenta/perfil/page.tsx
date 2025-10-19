@@ -262,7 +262,7 @@ export default function MiCuentaPage() {
       >
         <h2 className="text-xl font-semibold mb-6">Datos fiscales</h2>
         <p className="text-gray-600 mb-6">
-          Si requieres factura es necesario subir tu constancia de situación fiscal
+          En caso de requerir factura es necesario subir constancia de situación fiscal
           (PDF o imagen legible).
         </p>
 

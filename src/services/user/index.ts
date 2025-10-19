@@ -70,7 +70,7 @@ export const register = async (
 ): Promise<UserCollectionInterface> => {
   const { data } = await axios.post(
     `${NEXT_PUBLIC_API_URL}/invite/accept`,
-    { user, invite },
+    { ...user, invite },
     {
       headers: {
         "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY || "",
