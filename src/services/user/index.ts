@@ -65,12 +65,12 @@ export const inviteUser = async (
 };
 
 export const register = async (
-  token: string,
+  invite: string,
   user: Partial<UserCollectionInterface>
 ): Promise<UserCollectionInterface> => {
   const { data } = await axios.post(
     `${NEXT_PUBLIC_API_URL}/invite/accept`,
-    { user, token },
+    { user, invite },
     {
       headers: {
         "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY || "",
