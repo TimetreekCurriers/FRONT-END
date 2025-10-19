@@ -568,9 +568,9 @@ export default function MovimientosPage() {
       <RechargeModal
         showModal={openModalTransferencia}
         setShowModal={seOpenModalTransferencia}
-        bank="BBVA Bancomer"
-        clabe="012345678901234567"
-        beneficiary="ACME Wallet S.A. de C.V."
+        bank={process.env.NEXT_BANK_NAME}
+        clabe={process.env.NEXT_BANK_CLABE}
+        beneficiary={process.env.NEXT_BANK_PLACEHODER}
         // qrUrl="/path/to/qr.png" // opcional
       />
     </motion.div>
