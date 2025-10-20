@@ -195,11 +195,25 @@ export default function CotizadorPage() {
       const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
 
       let data = CourierOptionFromQuoteSoloenvios(quote);
-      if (data?.length === 0) {
+      if (data?.length <2) {
         const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
 
         data = CourierOptionFromQuoteSoloenvios(quote);
       }
+      if (!data || data.length <2) {
+        const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
+        data = CourierOptionFromQuoteSoloenvios(quote);
+      }
+      if(!data || data.length <2){
+        const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
+        data = CourierOptionFromQuoteSoloenvios(quote);
+      }
+      if(!data || data.length <2){
+        const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
+        data = CourierOptionFromQuoteSoloenvios(quote);
+      }
+
+
       const sorted = data.sort((a, b) => a.cost - b.cost);
       setResults(sorted);
     } catch (error) {
@@ -301,7 +315,7 @@ export default function CotizadorPage() {
           </div>
 
           {/* Embalaje */}
-{/*           <div className="flex flex-col flex-1 min-w-[160px] w-full sm:w-1/2">
+          {/*           <div className="flex flex-col flex-1 min-w-[160px] w-full sm:w-1/2">
             <label className="text-base font-medium text-gray-700">
               Embalaje
             </label>
@@ -402,77 +416,78 @@ export default function CotizadorPage() {
         </div>
       </motion.form>
 
-    <div className="relative">
-      {/* Resultados */}
-      <AnimatePresence>
-        {results !== null && (
-          results.length > 0 ? (
-            <motion.div
-              className="mt-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.4 }}
-            >
-              <div className="text-gray-600 mb-2 font-medium">
-                Mostrando del más barato al más caro
-              </div>
+      <div className="relative">
+        {/* Resultados */}
+        <AnimatePresence>
+          {results !== null &&
+            (results.length > 0 ? (
+              <motion.div
+                className="mt-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="text-gray-600 mb-2 font-medium">
+                  Mostrando del más barato al más caro
+                </div>
 
-              <div className="flex flex-col border-t border-b border-gray-200 divide-y divide-gray-200">
-                {results.map((opt, idx) => (
-                  <motion.div
-                    key={idx}
-                    className="px-4 py-4 hover:bg-gray-50 transition-colors"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                  >
-                    {/* Desktop */}
-                    <div className="hidden md:flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0 w-[45%]">
-                        <Image
-                          src={opt.logo}
-                          alt={`${opt.courier} logo`}
-                          width={50}
-                          height={50}
-                          className="rounded-md"
-                        />
-                        <div className="flex flex-col truncate">
-                          <span className="font-medium truncate">
-                            {opt.courier} {opt.type}
-                          </span>
-                          <span className="text-gray-500 text-base">
-                            {opt.time}
-                          </span>
+                <div className="flex flex-col border-t border-b border-gray-200 divide-y divide-gray-200">
+                  {results.map((opt, idx) => (
+                    <motion.div
+                      key={idx}
+                      className="px-4 py-4 hover:bg-gray-50 transition-colors"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.1 }}
+                    >
+                      {/* Desktop */}
+                      <div className="hidden md:flex items-center justify-between">
+                        <div className="flex items-center gap-3 min-w-0 w-[45%]">
+                          <Image
+                            src={opt.logo}
+                            alt={`${opt.courier} logo`}
+                            width={50}
+                            height={50}
+                            className="rounded-md"
+                          />
+                          <div className="flex flex-col truncate">
+                            <span className="font-medium truncate">
+                              {opt.courier} {opt.type}
+                            </span>
+                            <span className="text-gray-500 text-base">
+                              {opt.time}
+                            </span>
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="w-[120px] text-center font-medium">
-                        {opt.cost}
-                        <span className="text-gray-500 text-base"> MXN</span>
-                      </div>
+                        <div className="w-[120px] text-center font-medium">
+                          {opt.cost}
+                          <span className="text-gray-500 text-base"> MXN</span>
+                        </div>
 
-                      {/* Botón con tooltip */}
-                      <div className="flex justify-end relative group">
-                        <button
-                          onClick={() => {
-                            if (balance >= opt.cost) handleSelectedCourier(opt);
-                          }}
-                          disabled={balance < opt.cost}
-                          className={`px-3 py-1 rounded-xl inline-block text-center transition-colors
+                        {/* Botón con tooltip */}
+                        <div className="flex justify-end relative group">
+                          <button
+                            onClick={() => {
+                              if (balance >= opt.cost)
+                                handleSelectedCourier(opt);
+                            }}
+                            disabled={balance < opt.cost}
+                            className={`px-3 py-1 rounded-xl inline-block text-center transition-colors
                             ${
                               balance < opt.cost
                                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 : "bg-[#101f37] text-white hover:bg-[#0e1b32] cursor-pointer"
                             }`}
-                        >
-                          Continuar
-                        </button>
+                          >
+                            Continuar
+                          </button>
 
-                        {/* Popup saldo insuficiente */}
-                        {balance < opt.cost && (
-                          <div
-                            className="
+                          {/* Popup saldo insuficiente */}
+                          {balance < opt.cost && (
+                            <div
+                              className="
                               absolute -top-10 left-1/2 -translate-x-1/2
                               bg-red-500 text-white text-sm font-medium
                               px-3 py-1 rounded-lg shadow-lg
@@ -482,58 +497,62 @@ export default function CotizadorPage() {
                               pointer-events-none
                               whitespace-nowrap
                             "
-                          >
-                            ⚠️ Saldo insuficiente
+                            >
+                              ⚠️ Saldo insuficiente
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Mobile */}
+                      <div className="flex flex-col md:hidden">
+                        <div className="flex items-center gap-3">
+                          <Image
+                            src={opt.logo}
+                            alt={`${opt.courier} logo`}
+                            width={50}
+                            height={50}
+                            className="rounded-md"
+                          />
+                          <div className="flex flex-col truncate">
+                            <span className="font-medium truncate">
+                              {opt.courier} {opt.type}
+                            </span>
+                            <span className="text-gray-500 text-base">
+                              {opt.time}
+                            </span>
                           </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Mobile */}
-                    <div className="flex flex-col md:hidden">
-                      <div className="flex items-center gap-3">
-                        <Image
-                          src={opt.logo}
-                          alt={`${opt.courier} logo`}
-                          width={50}
-                          height={50}
-                          className="rounded-md"
-                        />
-                        <div className="flex flex-col truncate">
-                          <span className="font-medium truncate">
-                            {opt.courier} {opt.type}
-                          </span>
-                          <span className="text-gray-500 text-base">
-                            {opt.time}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-between mt-3 relative group">
-                        <div className="font-medium">
-                          {opt.cost}
-                          <span className="text-gray-500 text-base"> MXN</span>
                         </div>
 
-                        <button
-                          onClick={() => {
-                            if (balance >= opt.cost) handleSelectedCourier(opt);
-                          }}
-                          disabled={balance < opt.cost}
-                          className={`px-3 py-1 rounded-xl inline-block text-center transition-colors
+                        <div className="flex justify-between mt-3 relative group">
+                          <div className="font-medium">
+                            {opt.cost}
+                            <span className="text-gray-500 text-base">
+                              {" "}
+                              MXN
+                            </span>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              if (balance >= opt.cost)
+                                handleSelectedCourier(opt);
+                            }}
+                            disabled={balance < opt.cost}
+                            className={`px-3 py-1 rounded-xl inline-block text-center transition-colors
                             ${
                               balance < opt.cost
                                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                                 : "bg-[#101f37] text-white hover:bg-[#0e1b32] cursor-pointer"
                             }`}
-                        >
-                          Continuar
-                        </button>
+                          >
+                            Continuar
+                          </button>
 
-                        {/* Popup saldo insuficiente (mobile) */}
-                        {balance < opt.cost && (
-                          <div
-                            className="
+                          {/* Popup saldo insuficiente (mobile) */}
+                          {balance < opt.cost && (
+                            <div
+                              className="
                               absolute -top-10 right-0
                               bg-red-500 text-white text-sm font-medium
                               px-3 py-1 rounded-lg shadow-lg
@@ -543,35 +562,34 @@ export default function CotizadorPage() {
                               pointer-events-none
                               whitespace-nowrap
                             "
-                          >
-                            ⚠️ Saldo insuficiente
-                          </div>
-                        )}
+                            >
+                              ⚠️ Saldo insuficiente
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              className="mt-6 flex flex-col items-center justify-center text-gray-500 gap-2 p-6 border border-gray-200 rounded-xl bg-gray-50"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.4 }}
-            >
-              <span className="text-lg font-medium">
-                No se encontraron resultados para la búsqueda
-              </span>
-              <span className="text-sm text-gray-400">
-                Intenta modificar los códigos postales o dimensiones
-              </span>
-            </motion.div>
-          )
-        )}
-      </AnimatePresence>
-    </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                className="mt-6 flex flex-col items-center justify-center text-gray-500 gap-2 p-6 border border-gray-200 rounded-xl bg-gray-50"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                transition={{ duration: 0.4 }}
+              >
+                <span className="text-lg font-medium">
+                  No se encontraron resultados para la búsqueda
+                </span>
+                <span className="text-sm text-gray-400">
+                  Intenta modificar los códigos postales o dimensiones
+                </span>
+              </motion.div>
+            ))}
+        </AnimatePresence>
+      </div>
 
       {selectedCourier && (
         <OrdenDrawerModern
