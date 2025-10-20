@@ -192,29 +192,28 @@ export default function CotizadorPage() {
 
     try {
       setQuotePayload(payloadSoloenvios);
-      const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
 
-      let data = CourierOptionFromQuoteSoloenvios(quote);
-      if (data?.length <2) {
-        const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
+      const sleep = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
 
-        data = CourierOptionFromQuoteSoloenvios(quote);
-      }
-      if (!data || data.length <2) {
-        const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
-        data = CourierOptionFromQuoteSoloenvios(quote);
-      }
-      if(!data || data.length <2){
+      let dataStart: any[] | null = null;
+      let data: any[] | null = null;
+
+      for (let i = 0; i < 5; i++) {
         const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
         data = CourierOptionFromQuoteSoloenvios(quote);
-      }
-      if(!data || data.length <2){
-        const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
-        data = CourierOptionFromQuoteSoloenvios(quote);
+
+        if (data.length > 0 && data.length > dataStart?.length)
+          dataStart = data;
+        if (data && data.length >= 3) break;
+
+        await sleep(1800);
       }
 
-
-      const sorted = data.sort((a, b) => a.cost - b.cost);
+      const sorted =
+        data?.length > 0
+          ? data.sort((a, b) => a.cost - b.cost)
+          : dataStart.sort((a, b) => a.cost - b.cost);
       setResults(sorted);
     } catch (error) {
       console.log("Error al crear la cotización:", error);
