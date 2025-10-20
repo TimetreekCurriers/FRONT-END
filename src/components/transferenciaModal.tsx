@@ -10,6 +10,7 @@ type RechargeModalProps = {
   bank?: string;
   clabe?: string;
   beneficiary?: string;
+  whatsapp?: string;
 };
 
 export default function RechargeModal({
@@ -18,6 +19,7 @@ export default function RechargeModal({
   bank = process.env.NEXT_BANK_NAME,
   clabe = process.env.NEXT_BANK_CLABE,
   beneficiary = process.env.NEXT_BANK_PLACEHODER,
+  whatsapp = process.env.NEXT_WHATSAPP_TIME_TREK
 }: RechargeModalProps) {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -69,7 +71,7 @@ export default function RechargeModal({
               proporcionados. Una vez realizado el depósito, envía el
               comprobante al {" "}
               <span className="font-semibold text-green-600">
-                WhatsApp 55 7744 7465
+                WhatsApp {whatsapp}
               </span>
               .<br />
               Tu saldo será acreditado en tu wallet en un máximo de 10 minutos.
