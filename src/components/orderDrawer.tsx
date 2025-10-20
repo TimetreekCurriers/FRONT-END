@@ -6,7 +6,12 @@ import { AnimatePresence, motion, Variants } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { CheckIcon, ChevronDownIcon, Cross2Icon } from "@radix-ui/react-icons";
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+  Cross2Icon,
+} from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { FindAll, Create } from "@/services/address"; // tus services
 import { CartaPorteData } from "@/app/utils";
@@ -193,7 +198,7 @@ export function OrdenDrawerModern({
         if (debouncedOriginCP)
           if (debouncedOriginCP?.length > 3)
             handlePostalCodeDebounced("origin", debouncedOriginCP);
-      }, 500);
+      }, 1000);
       return () => clearTimeout(handler);
     }
   }, [debouncedOriginCP]);
@@ -204,7 +209,7 @@ export function OrdenDrawerModern({
       const handler = setTimeout(() => {
         if (debouncedOriginCP?.length > 3)
           handlePostalCodeDebounced("dest", debouncedDestCP);
-      }, 500);
+      }, 1000);
       return () => clearTimeout(handler);
     }
   }, [debouncedDestCP]);
@@ -259,7 +264,6 @@ export function OrdenDrawerModern({
           neighborhood: res.codigo_postal.colonias[0] || "",
         };
 
-        console.log("knsdlnasdlknasd", destForm);
         const payloadSoloenvios = buildPayloadQuoteSoloenvios(
           type === "origin"
             ? res
@@ -334,7 +338,8 @@ export function OrdenDrawerModern({
   };
 
   const handleGenerateOrder = async () => {
-    if (!selectedCourier) return;
+    if (!selectedCourier && (!consignmentNote || consignmentNote === ""))
+      return;
     setLoadingCreateOrder(true);
     const originErrors = validateForm(originForm);
     const destErrors = validateForm(destForm);
@@ -403,6 +408,9 @@ export function OrdenDrawerModern({
           : typeof value === "string" && value.trim() === "")
       ) {
         newErrors[key] = "Este campo es requerido";
+      }
+      if (!consignmentNote || consignmentNote === "") {
+        newErrors["consignmentNote"] = "Este campo es requerido";
       }
     });
     return newErrors;
@@ -488,9 +496,28 @@ export function OrdenDrawerModern({
   ) => {
     try {
       setLoadingQuote(true);
-      const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
-      let data = CourierOptionFromQuoteSoloenvios(quote);
-      setResults(data ? data : []);
+      const sleep = (ms: number) =>
+        new Promise((resolve) => setTimeout(resolve, ms));
+
+      let dataStart: any[] | null = null;
+      let data: any[] | null = null;
+
+      for (let i = 0; i < 5; i++) {
+        const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
+        data = CourierOptionFromQuoteSoloenvios(quote);
+
+        if (data.length > 0 && data.length > dataStart?.length)
+          dataStart = data;
+        if (data && data.length >= 3) break;
+
+        await sleep(1800);
+      }
+
+      const sorted =
+        data?.length > 0
+          ? data.sort((a, b) => a.cost - b.cost)
+          : dataStart.sort((a, b) => a.cost - b.cost);
+      setResults(sorted);
       setErrorQuote(false);
     } catch (error) {
       console.error("Error recalculando cotización:", error);
@@ -681,26 +708,87 @@ export function OrdenDrawerModern({
             form.colonies.length > 0
           ) {
             // Dropdown de colonias
+            /* hover:bg-gray-100 */
             return (
               <div key={key} className={inputGridClasses}>
                 <label className="text-base font-medium text-gray-700">
                   {labels[key]}
                 </label>
-                <select
-                  name={key}
-                  disabled
+                <Select.Root
                   value={form.neighborhood}
-                  onChange={(e) => handleChange(e, type)}
-                  className={`mt-1 w-full px-3 py-2 text-base border rounded-md ${
-                    errors[key] ? "border-red-500" : "border-gray-300"
-                  }`}
+                  onValueChange={(val) => {
+                    handleChange(
+                      {
+                        target: {
+                          name: key,
+                          value: val,
+                        },
+                      } as unknown as React.ChangeEvent<
+                        | HTMLInputElement
+                        | HTMLTextAreaElement
+                        | HTMLSelectElement
+                      >,
+                      type
+                    );
+                  }}
                 >
-                  {form.colonies.map((col) => (
-                    <option key={col} value={col}>
-                      {col}
-                    </option>
-                  ))}
-                </select>
+                  <Select.Trigger
+                    className={`mt-1 w-full flex items-center justify-between px-3 py-2 text-base border rounded-md bg-white  cursor-pointer
+      ${errors[key] ? "border-red-500" : "border-gray-300"}
+      focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    aria-label={key}
+                  >
+                    {/* ✅ Forzamos truncamiento del texto seleccionado */}
+                    <Select.Value placeholder="Selecciona una colonia" asChild>
+                      <span className="truncate text-ellipsis overflow-hidden whitespace-nowrap flex-1 text-left">
+                        {form.neighborhood || "Selecciona una colonia"}
+                      </span>
+                    </Select.Value>
+
+                    <Select.Icon className="flex-shrink-0 ml-2">
+                      <ChevronDownIcon />
+                    </Select.Icon>
+                  </Select.Trigger>
+
+                  <Select.Portal>
+                    <Select.Content
+                      className="overflow-hidden bg-white rounded-md shadow-md z-50 animate-in fade-in slide-in-from-top-1"
+                      position="popper"
+                    >
+                      <Select.ScrollUpButton className="flex items-center justify-center text-gray-500">
+                        <ChevronUpIcon />
+                      </Select.ScrollUpButton>
+
+                      {/* 🔽 Scroll con altura máxima */}
+                      <Select.Viewport className="p-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                        {form.colonies.map((col: string) => (
+                          <Select.Item
+                            key={col}
+                            value={col}
+                            className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer 
+              select-none hover:hover:bg-gray-100  focus:hover:bg-gray-100  focus:outline-none"
+                          >
+                            {/* También truncamos las opciones largas */}
+                            <Select.ItemText>
+                              <span className="truncate text-ellipsis overflow-hidden whitespace-nowrap block max-w-[220px]">
+                                {col}
+                              </span>
+                            </Select.ItemText>
+
+                            <Select.ItemIndicator className="absolute left-2 inline-flex items-center">
+                              <CheckIcon />
+                            </Select.ItemIndicator>
+                          </Select.Item>
+                        ))}
+                      </Select.Viewport>
+
+                      <Select.ScrollDownButton className="flex items-center justify-center text-gray-500">
+                        <ChevronDownIcon />
+                      </Select.ScrollDownButton>
+                    </Select.Content>
+                  </Select.Portal>
+                </Select.Root>
+
                 {errors[key] && (
                   <span className="text-red-500 text-sm mt-1">
                     {errors[key]}
@@ -870,6 +958,9 @@ export function OrdenDrawerModern({
                     </button>
                   </div>
                   {renderForm(destForm, "dest", saveDest, setSaveDest)}
+                  <label className="text-base font-medium text-gray-700 mb-1">
+                    Carta porte*
+                  </label>
                   <Select.Root
                     value={consignmentNote}
                     onValueChange={setConsignmentNote}
