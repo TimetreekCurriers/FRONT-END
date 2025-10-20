@@ -207,7 +207,7 @@ export function OrdenDrawerModern({
   useEffect(() => {
     if (debouncedDestCP) {
       const handler = setTimeout(() => {
-        if (debouncedOriginCP?.length > 3)
+        if (debouncedDestCP?.length > 3)
           handlePostalCodeDebounced("dest", debouncedDestCP);
       }, 1000);
       return () => clearTimeout(handler);
