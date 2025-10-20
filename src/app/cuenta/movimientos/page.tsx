@@ -571,6 +571,8 @@ export default function MovimientosPage() {
         bank={process.env.NEXT_BANK_NAME}
         clabe={process.env.NEXT_BANK_CLABE}
         beneficiary={process.env.NEXT_BANK_PLACEHODER}
+        whatsapp={process.env.NEXT_WHATSAPP_TIME_TREK}
+        
         // qrUrl="/path/to/qr.png" // opcional
       />
     </motion.div>
