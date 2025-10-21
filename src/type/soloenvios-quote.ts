@@ -19,6 +19,8 @@ export interface QuotationSoloenviosRequest {
     address_to: Address;
     parcels: Parcel[];
     requested_carriers: string[];
+    colonies_to?: string[];
+    colonies_from?: string[];
   };
 }
 

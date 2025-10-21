@@ -36,6 +36,8 @@ export const buildPayloadQuoteSoloenvios = (
       },
       parcels: parcels,
       requested_carriers: ["fedex", "dhl"],
+      colonies_to:address_to?.codigo_postal?.colonias ?? [],
+      colonies_from:address_from?.codigo_postal?.colonias ?? []
     },
   };
 };

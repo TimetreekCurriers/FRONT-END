@@ -114,7 +114,7 @@ export default function CotizadorPage() {
         extNumber: "",
         intNumber: "",
         references: "",
-        colonies: [quotePayload?.quotation?.address_from?.area_level3],
+        colonies: quotePayload?.quotation?.colonies_from ?? [],
       });
 
       setDestForm({
@@ -131,7 +131,7 @@ export default function CotizadorPage() {
         extNumber: "",
         intNumber: "",
         references: "",
-        colonies: [quotePayload?.quotation?.address_to?.area_level3],
+        colonies: quotePayload?.quotation?.colonies_to ?? [],
       });
     }
     setSelectedCourier(opt);
@@ -176,7 +176,6 @@ export default function CotizadorPage() {
     }
 
     if (!address_from || !address_to) return;
-
     const payloadSoloenvios = buildPayloadQuoteSoloenvios(
       address_from,
       address_to,
@@ -187,7 +186,8 @@ export default function CotizadorPage() {
           width: Number(form.width),
           weight: Number(form.weight),
         },
-      ]
+      ],
+
     );
 
     try {
