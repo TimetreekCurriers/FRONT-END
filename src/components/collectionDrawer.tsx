@@ -1,12 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { DayPicker } from "react-day-picker";
 import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import * as Select from "@radix-ui/react-select";
-import { es } from "date-fns/locale";
 import "react-day-picker/dist/style.css";
 import { ShipmentCollectionInterface } from "@/type/shipment.interface";
 import { LogoFedex, LogoDHL } from "../app/utils/index";

@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { FindAll, Create } from "@/services/address"; // tus services
 import { CartaPorteData } from "@/app/utils";
+import CartaPorteSelect from "./cartaporte";
 import {
   CreateQuoteSoloenvios,
   CreateShipmentSoloenvios,
@@ -130,9 +131,7 @@ export function OrdenDrawerModern({
   const [savedAddresses, setSavedAddresses] = useState<
     AddressCollectionInterface[]
   >([]);
-
-
-
+console.log("asdasd",box)
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
@@ -247,6 +246,11 @@ export function OrdenDrawerModern({
     const { name, value } = e.target;
     if (type === "origin") setOriginForm({ ...originForm, [name]: value });
     else setDestForm({ ...destForm, [name]: value });
+  };
+
+  const handleChangeCartaPorte = (val: string) => {
+    console.log("Carta porte seleccionada:", val);
+    setConsignmentNote(val);
   };
 
   // Autocomplete CP
@@ -913,7 +917,7 @@ export function OrdenDrawerModern({
                   <h1 className="text-xl font-semibold">Generar guía</h1>
                   <Dialog.Close asChild>
                     <button
-                      className="p-2 rounded-md hover:bg-gray-100"
+                      className="p-2 rounded-md hover:bg-gray-100 cursor-pointer"
                       aria-label="Cerrar"
                     >
                       <Cross2Icon className="w-5 h-5" />
@@ -930,7 +934,7 @@ export function OrdenDrawerModern({
                     </h2>
                     <button
                       type="button"
-                      className="text-sm text-[#101f37] hover:underline"
+                      className="text-sm text-[#101f37] hover:underline cursor-pointer"
                       onClick={() => {
                         setOriginForm(initialFormState);
                         setSaveDest(false);
@@ -960,61 +964,10 @@ export function OrdenDrawerModern({
                     </button>
                   </div>
                   {renderForm(destForm, "dest", saveDest, setSaveDest)}
-                  <label className="text-base font-medium text-gray-700 mb-1">
-                    Carta porte*
-                  </label>
-                  <Select.Root
+                  <CartaPorteSelect
                     value={consignmentNote}
-                    onValueChange={setConsignmentNote}
-                  >
-                    <Select.Trigger className="cursor-pointer mt-1 inline-flex items-center justify-between w-full px-3 py-2 border border-gray-300 rounded-md bg-white">
-                      <Select.Value placeholder="Carta porte" />
-                      <Select.Icon>
-                        <ChevronDownIcon />
-                      </Select.Icon>
-                    </Select.Trigger>
-
-                    <Select.Portal>
-                      <Select.Content
-                        className="z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg w-[var(--radix-select-trigger-width)]"
-                        position="popper"
-                      >
-                        <div className="p-2 border-b border-gray-200">
-                          <input
-                            type="text"
-                            placeholder="Buscar..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onKeyDown={(e) => e.stopPropagation()}
-                            className="w-full px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-400 text-sm"
-                          />
-                        </div>
-
-                        <Select.Viewport className="max-h-48 overflow-y-auto">
-                          {filteredData.length > 0 ? (
-                            filteredData.map((code) => (
-                              <Select.Item
-                                key={code.clave}
-                                value={code.clave}
-                                className="px-4 py-2 cursor-pointer hover:bg-gray-100 flex justify-between items-center rounded-md text-sm"
-                              >
-                                <Select.ItemText>
-                                  {code.descripcion}
-                                </Select.ItemText>
-                                <Select.ItemIndicator>
-                                  <CheckIcon className="text-blue-500" />
-                                </Select.ItemIndicator>
-                              </Select.Item>
-                            ))
-                          ) : (
-                            <div className="px-4 py-2 text-gray-400 text-sm">
-                              Sin resultados
-                            </div>
-                          )}
-                        </Select.Viewport>
-                      </Select.Content>
-                    </Select.Portal>
-                  </Select.Root>
+                    onChange={handleChangeCartaPorte}
+                  />
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-4">

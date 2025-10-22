@@ -8,6 +8,7 @@ export interface UserCollectionInterface {
     readonly password?: string;
     readonly birthdate?: Date;
     readonly role?: string;
+    readonly company?: string;
     readonly gender?: string;
     readonly tax_status_certificate?: string;
     readonly phone?: string;

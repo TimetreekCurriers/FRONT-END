@@ -71,6 +71,16 @@ export default function CotizadorPage() {
     width: "",
     weight: "",
   });
+
+  const [dataToQuote, setDataToQuote] = useState({
+    postal_code_origin: "",
+    postal_code_destination: "",
+    /* packaging: "sobre", */
+    length: "",
+    height: "",
+    width: "",
+    weight: "",
+  });
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<CourierOption[] | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -99,6 +109,12 @@ export default function CotizadorPage() {
   };
 
   const handleSelectedCourier = (opt: CourierOption) => {
+    const rechargeableW =
+      (Number(form?.height) * Number(form?.length) * Number(form?.width)) /
+      5000;
+    const weight =
+      Number(form.weight) > rechargeableW ? Number(form.weight) : rechargeableW;
+    setDataToQuote({ ...form, weight: Math.ceil(weight).toString() });
     if (quotePayload) {
       setOriginForm({
         name: "",
@@ -186,8 +202,7 @@ export default function CotizadorPage() {
           width: Number(form.width),
           weight: Number(form.weight),
         },
-      ],
-
+      ]
     );
 
     try {
@@ -601,10 +616,10 @@ export default function CotizadorPage() {
           open={drawerOpen}
           onOpenChange={setDrawerOpen}
           box={{
-            length: form.length,
-            height: form.height,
-            width: form.width,
-            weight: form.weight,
+            length: dataToQuote.length,
+            height: dataToQuote.height,
+            width: dataToQuote.width,
+            weight: dataToQuote.weight,
           }}
           userid={userid}
           setErrorQuote={setErrorQuote}

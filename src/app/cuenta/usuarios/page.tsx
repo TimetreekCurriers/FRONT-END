@@ -11,11 +11,13 @@ import { Toast } from "@/components/toast";
 import { useAuth } from "@/components/authProvider";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import ModalDetalleUsuario from "@/components/userDetailModal";
 
 const PAGE_SIZE = 10;
 
 export default function UsersPage() {
   const { session } = useAuth();
+
   const userid = session?.user?.sub;
   const isAdmin = session?.user?.role === "admin";
 
@@ -96,7 +98,7 @@ export default function UsersPage() {
 
     setSendingInvite(true);
     try {
-      await inviteUser(  inviteName,  inviteEmail );
+      await inviteUser(inviteName, inviteEmail);
       setToast({
         visible: true,
         message: "Invitación enviada correctamente ✔",
@@ -222,95 +224,100 @@ export default function UsersPage() {
             )}
           </tbody>
         </table>
-              {/* Paginación */}
-      <div className="flex justify-end gap-2 mt-4 flex-wrap">
-        <button
-          onClick={() => setPage((p) => Math.max(p - 1, 1))}
-          disabled={page === 1}
-          className="px-3 py-1 rounded-xl border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Anterior
-        </button>
-        <span className="px-3 py-1">
-          {page} / {totalPages}
-        </span>
-        <button
-          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-          disabled={page === totalPages}
-          className="px-3 py-1 rounded-xl border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Siguiente
-        </button>
-      </div>
+        {/* Paginación */}
+        <div className="flex justify-end gap-2 mt-4 flex-wrap">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            disabled={page === 1}
+            className="px-3 py-1 rounded-xl border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Anterior
+          </button>
+          <span className="px-3 py-1">
+            {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+            disabled={page === totalPages}
+            className="px-3 py-1 rounded-xl border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
 
       {/* Tabla mobile */}
-<div className="md:hidden flex flex-col gap-4">
-  {loading ? (
-    <div className="text-center py-6 text-gray-500">Cargando...</div>
-  ) : users.length === 0 ? (
-    <div className="text-center py-6 text-gray-500">No hay usuarios</div>
-  ) : (
-    users.map((user, i) => (
-      <motion.div
-        key={user._id}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: i * 0.05 }}
-        className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-2"
-      >
-        <div className="flex justify-between items-center">
-          <span className="font-medium">{user.first_name} {user.last_name}</span>
-          <UserActionsModal
-            fetchUsers={fetchUsers}
-            adminUserid={userid!}
-            setToast={setToast}
-            user={user}
-          />
-        </div>
-        <div className="text-gray-600 text-sm">Correo: {user.email}</div>
-        <div className="text-gray-800 font-semibold">Balance: ${user.balance?.toFixed(2) || "0.00"}</div>
-        <div className="text-gray-500 text-sm">Registro: {new Date(user.created_at).toLocaleDateString()}</div>
-        <div>
-          Constancia:{" "}
-          {user.tax_status_certificate ? (
-            <a
-              href={user.tax_status_certificate}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-2 py-1 bg-[#101f37] text-white rounded-lg text-xs hover:bg-[#0e1b32]"
+      <div className="md:hidden flex flex-col gap-4">
+        {loading ? (
+          <div className="text-center py-6 text-gray-500">Cargando...</div>
+        ) : users.length === 0 ? (
+          <div className="text-center py-6 text-gray-500">No hay usuarios</div>
+        ) : (
+          users.map((user, i) => (
+            <motion.div
+              key={user._id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.05 }}
+              className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 flex flex-col gap-2"
             >
-              Descargar
-            </a>
-          ) : (
-            <span className="text-gray-400 text-xs">No disponible</span>
-          )}
+              <div className="flex justify-between items-center">
+                <span className="font-medium">
+                  {user.first_name} {user.last_name}
+                </span>
+                <UserActionsModal
+                  fetchUsers={fetchUsers}
+                  adminUserid={userid!}
+                  setToast={setToast}
+                  user={user}
+                />
+              </div>
+              <div className="text-gray-600 text-sm">Correo: {user.email}</div>
+              <div className="text-gray-800 font-semibold">
+                Balance: ${user.balance?.toFixed(2) || "0.00"}
+              </div>
+              <div className="text-gray-500 text-sm">
+                Registro: {new Date(user.created_at).toLocaleDateString()}
+              </div>
+              <div>
+                Constancia:{" "}
+                {user.tax_status_certificate ? (
+                  <a
+                    href={user.tax_status_certificate}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2 py-1 bg-[#101f37] text-white rounded-lg text-xs hover:bg-[#0e1b32]"
+                  >
+                    Descargar
+                  </a>
+                ) : (
+                  <span className="text-gray-400 text-xs">No disponible</span>
+                )}
+              </div>
+            </motion.div>
+          ))
+        )}
+        {/* Paginación mobile */}
+        <div className="flex justify-center gap-2 mt-4 flex-wrap">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            disabled={page === 1}
+            className="px-3 py-1 rounded-xl border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Anterior
+          </button>
+          <span className="px-3 py-1">
+            {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+            disabled={page === totalPages}
+            className="px-3 py-1 rounded-xl border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Siguiente
+          </button>
         </div>
-      </motion.div>
-    ))
-  )}
-  {/* Paginación mobile */}
-  <div className="flex justify-center gap-2 mt-4 flex-wrap">
-    <button
-      onClick={() => setPage((p) => Math.max(p - 1, 1))}
-      disabled={page === 1}
-      className="px-3 py-1 rounded-xl border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      Anterior
-    </button>
-    <span className="px-3 py-1">
-      {page} / {totalPages}
-    </span>
-    <button
-      onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-      disabled={page === totalPages}
-      className="px-3 py-1 rounded-xl border border-gray-300 hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      Siguiente
-    </button>
-  </div>
-</div>
-
+      </div>
 
       {/* Modal de invitación */}
       <AnimatePresence>
@@ -419,6 +426,8 @@ function UserActionsModal({
   const [action, setAction] = useState<"agregar" | "quitar">("agregar");
   const [amount, setAmount] = useState<number>(0);
   const [loading, setLoading] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false); // Nuevo modal
+
   const [popupPos, setPopupPos] = useState<{ top: number; left: number }>({
     top: 0,
     left: 0,
@@ -511,10 +520,19 @@ function UserActionsModal({
                   position: "absolute",
                   top: popupPos.top,
                   left: popupPos.left,
-                  width: 160,
+                  width: 180,
                 }}
                 className="bg-white border border-gray-200 rounded-lg shadow-lg z-50 flex flex-col"
               >
+                <button
+                  onClick={() => {
+                    setShowDetailModal(true);
+                    setShowPopup(false);
+                  }}
+                  className="px-4 py-2 text-left hover:bg-gray-100 w-full cursor-pointer"
+                >
+                  Datos del usuario
+                </button>
                 <button
                   onClick={() => {
                     setShowModal(true);
@@ -536,6 +554,12 @@ function UserActionsModal({
             document.body
           )}
       </div>
+
+      <ModalDetalleUsuario
+        user={user}
+        visible={showDetailModal}
+        onClose={() => setShowDetailModal(false)}
+      />
 
       {/* Modal */}
       <AnimatePresence>

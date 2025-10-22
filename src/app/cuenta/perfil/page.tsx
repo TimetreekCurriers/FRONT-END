@@ -6,7 +6,6 @@ import { getUser, updateUser, uploadTaxCertificate } from "@/services/user";
 import type { UserCollectionInterface } from "@/type/user.interface";
 import { useAuth } from "@/components/authProvider";
 import { Toast } from "@/components/toast";
-
 export default function MiCuentaPage() {
   const { session, setSession } = useAuth();
   const [user, setUser] = useState<UserCollectionInterface | null>(null);
@@ -16,6 +15,7 @@ export default function MiCuentaPage() {
     second_last_name: "",
     phone: "",
     email: "",
+    company: "", // Nuevo campo
   });
   const [toast, setToast] = useState({
     visible: false,
@@ -47,8 +47,8 @@ export default function MiCuentaPage() {
           second_last_name: data.second_last_name || "",
           phone: data.phone || "",
           email: data.email || "",
+          company: data.company || "", // Cargamos empresa
         });
-        // Si existe constancia fiscal, guardamos la URL
         if (data.tax_status_certificate) {
           setExistingTaxFile(data.tax_status_certificate);
         }
@@ -67,13 +67,16 @@ export default function MiCuentaPage() {
       form.first_name !== (user.first_name || "") ||
       form.last_name !== (user.last_name || "") ||
       form.second_last_name !== (user.second_last_name || "") ||
-      form.phone !== (user.phone || "");
+      form.phone !== (user.phone || "") ||
+      form.company !== (user.company || ""); // Revisamos empresa
     setChanged(hasChanges);
   }, [form, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (["first_name", "last_name", "second_last_name"].includes(name)) {
+    if (
+      ["first_name", "last_name", "second_last_name", "company"].includes(name)
+    ) {
       const filteredValue = value.replace(/[^A-Za-z\s]/g, "");
       setForm((prev) => ({ ...prev, [name]: filteredValue }));
     } else if (name === "phone") {
@@ -95,6 +98,8 @@ export default function MiCuentaPage() {
     if (!form.second_last_name) newErrors.second_last_name = "Requerido";
     if (!phoneRegex.test(form.phone))
       newErrors.phone = "Debe tener 10 dígitos numéricos";
+    // Empresa opcional, si quieres obligatoria descomenta:
+    // if (!form.company) newErrors.company = "Requerido";
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
@@ -138,6 +143,7 @@ export default function MiCuentaPage() {
       second_last_name: user.second_last_name || "",
       phone: user.phone || "",
       email: user.email || "",
+      company: user.company || "",
     });
     setErrors({});
   };
@@ -164,7 +170,6 @@ export default function MiCuentaPage() {
         message: "Constancia de situación fiscal subida correctamente ✔",
         type: "success",
       });
-      // Actualizamos el preview del archivo con el nuevo
       setExistingTaxFile(URL.createObjectURL(taxFile));
       setTaxFile(null);
     } catch (err) {
@@ -183,11 +188,12 @@ export default function MiCuentaPage() {
   if (!user) return <p>Error cargando usuario</p>;
 
   const fields = [
-    { label: "Nombre", name: "first_name" },
-    { label: "Apellido Paterno", name: "last_name" },
-    { label: "Apellido Materno", name: "second_last_name" },
-    { label: "Teléfono", name: "phone", type: "tel" },
-    { label: "Correo", name: "email", type: "email", readOnly: true },
+    { label: "Nombre*", name: "first_name" },
+    { label: "Apellido Paterno*", name: "last_name" },
+    { label: "Apellido Materno*", name: "second_last_name" },
+    { label: "Teléfono*", name: "phone", type: "tel" },
+    { label: "Correo*", name: "email", type: "email", readOnly: true },
+    { label: "Empresa", name: "company" }, // Nuevo input
   ];
 
   return (
@@ -196,9 +202,7 @@ export default function MiCuentaPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <motion.h1 className="text-2xl font-semibold mb-6">
-        Mi Cuenta
-      </motion.h1>
+      <motion.h1 className="text-2xl font-semibold mb-6">Mi Cuenta</motion.h1>
 
       {/* FORMULARIO PERFIL */}
       <motion.form
@@ -215,6 +219,7 @@ export default function MiCuentaPage() {
               name={field.name}
               value={form[field.name as keyof typeof form]}
               onChange={handleChange}
+              required={!field.readOnly && field.name !== "company"}
               placeholder={field.label}
               maxLength={field.name === "phone" ? 10 : undefined}
               readOnly={field.readOnly || false}
@@ -223,7 +228,6 @@ export default function MiCuentaPage() {
                   ? "bg-gray-100 cursor-not-allowed"
                   : "border-gray-300"
               }`}
-              required
             />
             {errors[field.name] && (
               <p className="text-red-500 text-sm mt-1">{errors[field.name]}</p>
@@ -262,11 +266,10 @@ export default function MiCuentaPage() {
       >
         <h2 className="text-xl font-semibold mb-6">Datos fiscales</h2>
         <p className="text-gray-600 mb-6">
-          En caso de requerir factura es necesario subir constancia de situación fiscal
-          (PDF o imagen legible).
+          En caso de requerir factura es necesario subir constancia de situación
+          fiscal (PDF o imagen legible).
         </p>
 
-        {/* Mostrar archivo existente */}
         {existingTaxFile && (
           <div className="mb-6">
             <a
@@ -280,33 +283,32 @@ export default function MiCuentaPage() {
           </div>
         )}
 
-<form
-  onSubmit={handleTaxUpload}
-  className="flex flex-col sm:flex-row gap-4 w-full"
->
-  <input
-    type="file"
-    accept=".pdf,image/*"
-    onChange={(e) => setTaxFile(e.target.files?.[0] || null)}
-    className="border border-gray-300 rounded-md px-3 py-2 text-base cursor-pointer focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]"
-  />
+        <form
+          onSubmit={handleTaxUpload}
+          className="flex flex-col sm:flex-row gap-4 w-full"
+        >
+          <input
+            type="file"
+            accept=".pdf,image/*"
+            onChange={(e) => setTaxFile(e.target.files?.[0] || null)}
+            className="border border-gray-300 rounded-md px-3 py-2 text-base cursor-pointer focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]"
+          />
 
-  <button
-    type="submit"
-    disabled={loadingTax}
-    className="px-6 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-all duration-300 font-medium flex items-center gap-2 w-full sm:w-auto cursor-pointer"
-  >
-    {loadingTax ? (
-      <>
-        <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5 "></span>
-        Subiendo...
-      </>
-    ) : (
-      "Subir constancia"
-    )}
-  </button>
-</form>
-
+          <button
+            type="submit"
+            disabled={loadingTax}
+            className="px-6 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-all duration-300 font-medium flex items-center gap-2 w-full sm:w-auto cursor-pointer"
+          >
+            {loadingTax ? (
+              <>
+                <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5 "></span>
+                Subiendo...
+              </>
+            ) : (
+              "Subir constancia"
+            )}
+          </button>
+        </form>
       </motion.div>
 
       <Toast
@@ -315,6 +317,7 @@ export default function MiCuentaPage() {
         type={toast.type}
         onClose={() => setToast({ ...toast, visible: false })}
       />
+
     </motion.div>
   );
 }
