@@ -109,12 +109,7 @@ export default function CotizadorPage() {
   };
 
   const handleSelectedCourier = (opt: CourierOption) => {
-    const rechargeableW =
-      (Number(form?.height) * Number(form?.length) * Number(form?.width)) /
-      5000;
-    const weight =
-      Number(form.weight) > rechargeableW ? Number(form.weight) : rechargeableW;
-    setDataToQuote({ ...form, weight: Math.ceil(weight).toString() });
+
     if (quotePayload) {
       setOriginForm({
         name: "",
@@ -158,6 +153,12 @@ export default function CotizadorPage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    const rechargeableW =
+    (Number(form?.height) * Number(form?.length) * Number(form?.width)) /
+    5000;
+  const weight =
+    Number(form.weight) > rechargeableW ? Number(form.weight) : rechargeableW;
+  setDataToQuote({ ...form, weight: Math.ceil(weight).toString() });
     e.preventDefault();
     setLoading(true);
     setResults(null);
@@ -200,7 +201,7 @@ export default function CotizadorPage() {
           length: Number(form.length),
           height: Number(form.height),
           width: Number(form.width),
-          weight: Number(form.weight),
+          weight: Number(Math.ceil(weight)),
         },
       ]
     );

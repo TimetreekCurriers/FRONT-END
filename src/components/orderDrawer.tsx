@@ -131,7 +131,6 @@ export function OrdenDrawerModern({
   const [savedAddresses, setSavedAddresses] = useState<
     AddressCollectionInterface[]
   >([]);
-console.log("asdasd",box)
   const [toast, setToast] = useState<{
     visible: boolean;
     message: string;
@@ -424,6 +423,7 @@ console.log("asdasd",box)
 
   const isFormIncomplete = (): boolean => {
     const ignoredFields = ["company", "intNumber"];
+    if(consignmentNote === "" || !consignmentNote) return true;
 
     const checkForm = (form: FormFields) =>
       Object.entries(form).some(
