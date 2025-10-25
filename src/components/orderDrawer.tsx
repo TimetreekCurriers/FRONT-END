@@ -18,6 +18,7 @@ import { CartaPorteData } from "@/app/utils";
 import CartaPorteSelect from "./cartaporte";
 import {
   CreateQuoteSoloenvios,
+  CreateQuoteSkydropx,
   CreateShipmentSoloenvios,
 } from "@/services/shipping"; // tus services
 
@@ -30,7 +31,10 @@ import {
   buildPayloadshipmentSoloenvios,
   CourierOptionFromQuoteSoloenvios,
 } from "@/app/utils";
-import { QuotationSoloenviosRequest } from "@/type/soloenvios-quote";
+import {
+  QuotationSoloenviosRequest,
+  RateSimple,
+} from "@/type/soloenvios-quote";
 import { CourierOption } from "@/app/cuenta/cotizador/page";
 import { Toast } from "./toast";
 
@@ -149,6 +153,7 @@ export function OrdenDrawerModern({
       type: string;
       cost: number;
       time: string;
+      source: string;
     }[]
   >([]);
 
@@ -360,7 +365,11 @@ export function OrdenDrawerModern({
           consignmentNote
         );
 
-        const shipment = await CreateShipmentSoloenvios(userid, payload);
+        const shipment = await CreateShipmentSoloenvios(
+          userid,
+          payload,
+          selectedCourier.source
+        );
 
         // Guardar direcciones nuevas si corresponde
         if (saveOrigin && !originForm.id) {
@@ -423,7 +432,7 @@ export function OrdenDrawerModern({
 
   const isFormIncomplete = (): boolean => {
     const ignoredFields = ["company", "intNumber"];
-    if(consignmentNote === "" || !consignmentNote) return true;
+    if (consignmentNote === "" || !consignmentNote) return true;
 
     const checkForm = (form: FormFields) =>
       Object.entries(form).some(
@@ -505,24 +514,60 @@ export function OrdenDrawerModern({
       const sleep = (ms: number) =>
         new Promise((resolve) => setTimeout(resolve, ms));
 
-      let dataStart: any[] | null = null;
-      let data: any[] | null = null;
+      let dataStartSoloenvios: any[] | null = null;
+      let dataSoloenvios: any[] | null = null;
+      let dataStartSkydropx: any[] | null = null;
+      let dataSkydropx: any[] | null = null;
 
-      for (let i = 0; i < 5; i++) {
-        const quote = await CreateQuoteSoloenvios(payloadSoloenvios);
-        data = CourierOptionFromQuoteSoloenvios(quote);
-
-        if (data.length > 0 && data.length > dataStart?.length)
-          dataStart = data;
-        if (data && data.length >= 3) break;
-
-        await sleep(1800);
+      if(process.env.NEXT_QUOTE_OPTION === "SOLOENVIOS" || process.env.NEXT_QUOTE_OPTION === "ALL") {
+        for (let i = 0; i < 5; i++) {
+          const quoteSoloenvios = await CreateQuoteSoloenvios(payloadSoloenvios);
+          dataSoloenvios = CourierOptionFromQuoteSoloenvios(
+            quoteSoloenvios,
+            "soloenvios"
+          );
+  
+          if (
+            dataSoloenvios.length > 0 &&
+            dataSoloenvios.length > dataStartSoloenvios?.length
+          )
+            dataStartSoloenvios = dataSoloenvios;
+          if (dataSoloenvios && dataSoloenvios.length >= 3) break;
+  
+          await sleep(1800);
+        }
       }
 
-      const sorted =
-        data?.length > 0
-          ? data.sort((a, b) => a.cost - b.cost)
-          : dataStart.sort((a, b) => a.cost - b.cost);
+      if (
+        process.env.NEXT_QUOTE_OPTION === "SKYDROPX" ||
+        process.env.NEXT_QUOTE_OPTION === "ALL"
+      ) {
+        for (let i = 0; i < 5; i++) {
+          const quoteSkydropx = await CreateQuoteSkydropx(payloadSoloenvios);
+          dataSkydropx = CourierOptionFromQuoteSoloenvios(
+            quoteSkydropx,
+            "skydropx"
+          );
+
+          if (
+            dataSkydropx.length > 0 &&
+            dataSkydropx.length > dataStartSkydropx?.length
+          )
+            dataStartSkydropx = dataSkydropx;
+          if (dataSkydropx && dataSkydropx.length >= 3) break;
+
+          await sleep(1800);
+        }
+      }
+
+      const soloenviosData =
+        dataSoloenvios?.length > 0 ? dataSoloenvios : dataStartSoloenvios;
+      const skydropxData =
+        dataSkydropx?.length > 0 ? dataSkydropx : dataStartSkydropx;
+
+      const results = comparePrices(soloenviosData, skydropxData);
+
+      const sorted = results.sort((a, b) => a.cost - b.cost);
       setResults(sorted);
       setErrorQuote(false);
     } catch (error) {
@@ -534,6 +579,37 @@ export function OrdenDrawerModern({
       setLoadingQuote(false);
       /*  setSelectedCourier(null); */
     }
+  };
+
+  const comparePrices = (
+    soloenvios: RateSimple[],
+    skydropx: RateSimple[]
+  ): RateSimple[] => {
+    // Añadimos la fuente a cada tarifa
+    const markRates = (
+      rates: RateSimple[],
+      source: "soloenvios" | "skydropx"
+    ) => (rates || []).map((r) => ({ ...r, source }));
+
+    // Unimos todas las tarifas
+    const allRates = [
+      ...markRates(soloenvios, "soloenvios"),
+      ...markRates(skydropx, "skydropx"),
+    ];
+
+    // Creamos un mapa para almacenar el mejor precio por courier + type
+    const bestRatesMap = new Map<string, RateSimple>();
+
+    for (const rate of allRates) {
+      const key = `${rate.courier}-${rate.type}`;
+      const existing = bestRatesMap.get(key);
+
+      if (!existing || rate.cost < existing.cost) {
+        bestRatesMap.set(key, rate);
+      }
+    }
+
+    return Array.from(bestRatesMap.values());
   };
 
   // ==================== UI VARIANTS ====================

@@ -119,7 +119,7 @@ export default function OrderDetailPage() {
           >
             ← Regresar
           </button>
-          {!origen.includes("usuarios") && (
+          {!origen || !origen.includes("usuarios") && (
             <Link
               href="/cuenta/cotizador"
               className="px-4 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition-colors cursor-pointer"

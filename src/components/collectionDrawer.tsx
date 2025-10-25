@@ -8,12 +8,15 @@ import * as Select from "@radix-ui/react-select";
 import "react-day-picker/dist/style.css";
 import { ShipmentCollectionInterface } from "@/type/shipment.interface";
 import { LogoFedex, LogoDHL } from "../app/utils/index";
-import { AvailableDatesSoloenvios } from "@/services/collection";
+import {
+  AvailableDatesSoloenvios,
+  AvailableDatesSkydropx,
+} from "@/services/collection";
 import { Toast } from "./toast";
 
 interface RecolectionDrawerProps {
   loadingCreateCollection: boolean;
-      setLoadingCreateCollection: (value:boolean) => void;
+  setLoadingCreateCollection: (value: boolean) => void;
 
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -88,13 +91,19 @@ export function RecolectionDrawer({
   const handleSelectShipment = async (
     shipment: ShipmentCollectionInterface
   ) => {
+    console.log("knasdmnasm,dnsa,md", shipment);
     setSelectedShipment(shipment);
     setSelectedDate(undefined);
     setAvailableHours([]);
     setTotalPackages("1");
     setTotalWeight(shipment?.packages?.[0]?.weight?.toString() || "");
     if (shipment) {
-      const response = await AvailableDatesSoloenvios(shipment?.soloenvios_id);
+      let response;
+      if (shipment?.soloenvios_id) {
+        response = await AvailableDatesSoloenvios(shipment?.soloenvios_id);
+      } else {
+        response = await AvailableDatesSkydropx(shipment?.skydropx_id);
+      }
       if (response?.pickupDates) {
         const dates = response?.pickupDates.map((d, index) => {
           const [year, month, day] = d.date.split("-").map(Number);
@@ -108,11 +117,10 @@ export function RecolectionDrawer({
             startHour: d.startHour,
             endHour: d.endHour,
             name: `${date.toISOString()} | ${d.startHour} - ${d.endHour}`,
-            key: (index + Math.random()).toString() ,
+            key: (index + Math.random()).toString(),
           };
         });
 
-        console.log("datesdates", dates);
         setAvailableDates(dates);
       }
     } else {
@@ -182,8 +190,7 @@ export function RecolectionDrawer({
         setAvailableHours([]);
         setErrors({});
         onOpenChange(false);
-      setLoadingCreateCollection(false);
-
+        setLoadingCreateCollection(false);
       }, 2500);
     } else {
       setToast({
@@ -191,6 +198,7 @@ export function RecolectionDrawer({
         message: "Error al crear la recolección",
         type: "error",
       });
+      setLoadingCreateCollection(false);
     }
   };
 
@@ -211,33 +219,33 @@ export function RecolectionDrawer({
           )}
         </AnimatePresence>
 
-          {open && (
-            <Dialog.Content asChild forceMount>
-              <motion.div
-                className="fixed top-0 right-0 h-full w-full lg:w-[500px] bg-white shadow-2xl flex flex-col z-50"
-                variants={drawerVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-              >
-                {/* DialogTitle accesible */}
-                <Dialog.Title asChild>
-                  <h2 className="sr-only">Nueva Recolección</h2>
-                </Dialog.Title>
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-300">
-                  <h2 className="text-xl font-semibold">Nueva Recolección</h2>
-                  <button
-                    onClick={() => onOpenChange(false)}
-                    className="text-gray-500 hover:text-gray-700 font-bold cursor-pointer transition"
-                  >
-                    X
-                  </button>
-                </div>
+        {open && (
+          <Dialog.Content asChild forceMount>
+            <motion.div
+              className="fixed top-0 right-0 h-full w-full lg:w-[500px] bg-white shadow-2xl flex flex-col z-50"
+              variants={drawerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              {/* DialogTitle accesible */}
+              <Dialog.Title asChild>
+                <h2 className="sr-only">Nueva Recolección</h2>
+              </Dialog.Title>
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-300">
+                <h2 className="text-xl font-semibold">Nueva Recolección</h2>
+                <button
+                  onClick={() => onOpenChange(false)}
+                  className="text-gray-500 hover:text-gray-700 font-bold cursor-pointer transition"
+                >
+                  X
+                </button>
+              </div>
 
-                {/* Stepper Body */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                  {/*           <div className="flex justify-evenly mb-4">
+              {/* Stepper Body */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {/*           <div className="flex justify-evenly mb-4">
                     <span
                       className={`font-medium ${
                         step === 1 ? "text-[#101f37]" : "text-gray-400"
@@ -261,253 +269,251 @@ export function RecolectionDrawer({
                     </span>
                   </div> */}
 
-                  {/* Step 1 - Guía */}
-                  {step === 1 && (
-                    <div>
-                      <h3
-                        style={{ marginBottom: "24px" }}
-                        className="font-semibold mb-2"
-                      >
-                        Selecciona la guía
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                        {shipments.map((g) => {
-                          const isSelected = selectedShipment?._id === g?._id;
-                          const carrierLogo =
-                            g.carrier_name?.toUpperCase() === "DHL"
-                              ? LogoDHL
-                              : LogoFedex;
+                {/* Step 1 - Guía */}
+                {step === 1 && (
+                  <div>
+                    <h3
+                      style={{ marginBottom: "24px" }}
+                      className="font-semibold mb-2"
+                    >
+                      Selecciona la guía
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+                      {shipments.map((g) => {
+                        const isSelected = selectedShipment?._id === g?._id;
+                        const carrierLogo =
+                          g.carrier_name?.toUpperCase() === "DHL"
+                            ? LogoDHL
+                            : LogoFedex;
 
-                          return (
-                            <motion.button
-                              key={g._id}
-                              type="button"
-                              onClick={() => handleSelectShipment(g)}
-                              whileHover={{ scale: 1.02 }}
-                              transition={{ type: "spring", stiffness: 300 }}
-                              className={`relative w-full p-4 text-left border rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-start md:items-center bg-white transition-all duration-50 cursor-pointer ${
-                                isSelected
-                                  ? "border-[#101f37] shadow-md"
-                                  : "border-gray-200 hover:shadow-sm"
-                              }`}
-                            >
-                              {isSelected && (
-                                <div className="absolute top-3 right-3 bg-[#101f37] text-white rounded-full p-1">
-                                  <CheckIcon className="w-4 h-4" />
-                                </div>
-                              )}
-                              <img
-                                src={carrierLogo}
-                                alt={g.carrier_name}
-                                className="w-16 h-auto self-center md:self-auto"
-                              />
-                              <div className="flex flex-col gap-1 text-sm text-gray-700 flex-1">
-                                <p>
-                                  <span className="font-medium">Tracking:</span>{" "}
-                                  {g.packages?.[0]?.tracking_number || "N/A"}
-                                </p>
-                                <p>
-                                  <span className="font-medium">Fecha:</span>{" "}
-                                  {g.created_at
-                                    ? new Date(g.created_at).toLocaleString(
-                                        "es-MX",
-                                        {
-                                          dateStyle: "medium",
-                                          timeStyle: "short",
-                                        }
-                                      )
-                                    : "N/A"}
-                                </p>
-                                <p>
-                                  <span className="font-medium">Origen:</span>{" "}
-                                  {g.address_from?.address.street1},{" "}
-                                  {g.address_from?.address.area_level2},{" "}
-                                  {g.address_from?.address.area_level1}
-                                </p>
-                                <p>
-                                  <span className="font-medium">Destino:</span>{" "}
-                                  {g.address_to?.address.street1},{" "}
-                                  {g.address_to?.address.area_level2},{" "}
-                                  {g.address_to?.address.area_level1}
-                                </p>
-                                <p className="text-gray-500">
-                                  {g.status === "delivered"
-                                    ? "Entregado"
-                                    : g.status}
-                                </p>
+                        return (
+                          <motion.button
+                            key={g._id}
+                            type="button"
+                            onClick={() => handleSelectShipment(g)}
+                            whileHover={{ scale: 1.02 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                            className={`relative w-full p-4 text-left border rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-start md:items-center bg-white transition-all duration-50 cursor-pointer ${
+                              isSelected
+                                ? "border-[#101f37] shadow-md"
+                                : "border-gray-200 hover:shadow-sm"
+                            }`}
+                          >
+                            {isSelected && (
+                              <div className="absolute top-3 right-3 bg-[#101f37] text-white rounded-full p-1">
+                                <CheckIcon className="w-4 h-4" />
                               </div>
-                            </motion.button>
-                          );
-                        })}
-                        {shipments.length === 0 && (
-                          <p className="col-span-full text-gray-500 text-sm text-center py-4">
-                            No hay guías disponibles
+                            )}
+                            <img
+                              src={carrierLogo}
+                              alt={g.carrier_name}
+                              className="w-16 h-auto self-center md:self-auto"
+                            />
+                            <div className="flex flex-col gap-1 text-sm text-gray-700 flex-1">
+                              <p>
+                                <span className="font-medium">Tracking:</span>{" "}
+                                {g.packages?.[0]?.tracking_number || "N/A"}
+                              </p>
+                              <p>
+                                <span className="font-medium">Fecha:</span>{" "}
+                                {g.created_at
+                                  ? new Date(g.created_at).toLocaleString(
+                                      "es-MX",
+                                      {
+                                        dateStyle: "medium",
+                                        timeStyle: "short",
+                                      }
+                                    )
+                                  : "N/A"}
+                              </p>
+                              <p>
+                                <span className="font-medium">Origen:</span>{" "}
+                                {g.address_from?.address.street1},{" "}
+                                {g.address_from?.address.area_level2},{" "}
+                                {g.address_from?.address.area_level1}
+                              </p>
+                              <p>
+                                <span className="font-medium">Destino:</span>{" "}
+                                {g.address_to?.address.street1},{" "}
+                                {g.address_to?.address.area_level2},{" "}
+                                {g.address_to?.address.area_level1}
+                              </p>
+                              <p className="text-gray-500">
+                                {g.status === "delivered"
+                                  ? "Entregado"
+                                  : g.status}
+                              </p>
+                            </div>
+                          </motion.button>
+                        );
+                      })}
+                      {shipments.length === 0 && (
+                        <p className="col-span-full text-gray-500 text-sm text-center py-4">
+                          No hay guías disponibles
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2 - Paquetes */}
+                {step === 2 && (
+                  <div>
+                    <h3
+                      style={{ marginBottom: "24px" }}
+                      className="font-semibold mb-2"
+                    >
+                      Selecciona el horario
+                    </h3>
+                    <motion.button
+                      style={{ marginBottom: "24px" }}
+                      key={selectedShipment._id}
+                      type="button"
+                      transition={{ type: "spring", stiffness: 300 }}
+                      className={`relative w-full p-4 text-left border rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-start md:items-center bg-white  ${"border-[#101f37] shadow-md"}`}
+                    >
+                      <div className="absolute top-3 right-3 bg-[#101f37] text-white rounded-full p-1">
+                        <CheckIcon className="w-4 h-4" />
+                      </div>
+                      <img
+                        src={
+                          selectedShipment.carrier_name?.toUpperCase() === "DHL"
+                            ? LogoDHL
+                            : LogoFedex
+                        }
+                        alt={selectedShipment?.carrier_name}
+                        className="w-16 h-auto self-center md:self-auto"
+                      />
+                      <div className="flex flex-col gap-1 text-sm text-gray-700 flex-1">
+                        <p>
+                          <span className="font-medium">Tracking:</span>{" "}
+                          {selectedShipment.packages?.[0]?.tracking_number ||
+                            "N/A"}
+                        </p>
+                        <p>
+                          <span className="font-medium">Fecha:</span>{" "}
+                          {selectedShipment.created_at
+                            ? new Date(
+                                selectedShipment.created_at
+                              ).toLocaleString("es-MX", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              })
+                            : "N/A"}
+                        </p>
+                        <p>
+                          <span className="font-medium">Origen:</span>{" "}
+                          {selectedShipment.address_from?.address.street1},{" "}
+                          {selectedShipment.address_from?.address.area_level2},{" "}
+                          {selectedShipment.address_from?.address.area_level1}
+                        </p>
+                        <p>
+                          <span className="font-medium">Destino:</span>{" "}
+                          {selectedShipment.address_to?.address.street1},{" "}
+                          {selectedShipment.address_to?.address.area_level2},{" "}
+                          {selectedShipment.address_to?.address.area_level1}
+                        </p>
+                        <p className="text-gray-500">
+                          {selectedShipment.status === "delivered"
+                            ? "Entregado"
+                            : selectedShipment.status}
+                        </p>
+                      </div>
+                    </motion.button>
+                    {/*    <h3 className="font-semibold mb-4">
+                        Información de paquetes
+                      </h3> */}
+                    <div className="flex flex-col gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Total de paquetes
+                        </label>
+                        <input
+                          type="text"
+                          value={totalPackages}
+                          onChange={(e) => setTotalPackages(e.target.value)}
+                          className="w-full border border-gray-300 rounded-xl p-2"
+                        />
+                        {errors.packages && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.packages}
                           </p>
                         )}
                       </div>
-                    </div>
-                  )}
-
-                  {/* Step 2 - Paquetes */}
-                  {step === 2 && (
-                    <div>
-                      <h3
-                        style={{ marginBottom: "24px" }}
-                        className="font-semibold mb-2"
-                      >
-                        Selecciona el horario
-                      </h3>
-                      <motion.button
-                        style={{ marginBottom: "24px" }}
-                        key={selectedShipment._id}
-                        type="button"
-                        transition={{ type: "spring", stiffness: 300 }}
-                        className={`relative w-full p-4 text-left border rounded-2xl shadow-sm flex flex-col md:flex-row gap-4 items-start md:items-center bg-white  ${"border-[#101f37] shadow-md"}`}
-                      >
-                        <div className="absolute top-3 right-3 bg-[#101f37] text-white rounded-full p-1">
-                          <CheckIcon className="w-4 h-4" />
-                        </div>
-                        <img
-                          src={
-                            selectedShipment.carrier_name?.toUpperCase() ===
-                            "DHL"
-                              ? LogoDHL
-                              : LogoFedex
-                          }
-                          alt={selectedShipment?.carrier_name}
-                          className="w-16 h-auto self-center md:self-auto"
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Peso total aproximado (kg)
+                        </label>
+                        <input
+                          type="text"
+                          value={totalWeight}
+                          onChange={(e) => setTotalWeight(e.target.value)}
+                          className="w-full border border-gray-300 rounded-xl p-2"
                         />
-                        <div className="flex flex-col gap-1 text-sm text-gray-700 flex-1">
-                          <p>
-                            <span className="font-medium">Tracking:</span>{" "}
-                            {selectedShipment.packages?.[0]?.tracking_number ||
-                              "N/A"}
+                        {errors.weight && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.weight}
                           </p>
-                          <p>
-                            <span className="font-medium">Fecha:</span>{" "}
-                            {selectedShipment.created_at
-                              ? new Date(
-                                  selectedShipment.created_at
-                                ).toLocaleString("es-MX", {
-                                  dateStyle: "medium",
-                                  timeStyle: "short",
-                                })
-                              : "N/A"}
-                          </p>
-                          <p>
-                            <span className="font-medium">Origen:</span>{" "}
-                            {selectedShipment.address_from?.address.street1},{" "}
-                            {selectedShipment.address_from?.address.area_level2}
-                            ,{" "}
-                            {selectedShipment.address_from?.address.area_level1}
-                          </p>
-                          <p>
-                            <span className="font-medium">Destino:</span>{" "}
-                            {selectedShipment.address_to?.address.street1},{" "}
-                            {selectedShipment.address_to?.address.area_level2},{" "}
-                            {selectedShipment.address_to?.address.area_level1}
-                          </p>
-                          <p className="text-gray-500">
-                            {selectedShipment.status === "delivered"
-                              ? "Entregado"
-                              : selectedShipment.status}
-                          </p>
-                        </div>
-                      </motion.button>
-                      {/*    <h3 className="font-semibold mb-4">
-                        Información de paquetes
-                      </h3> */}
-                      <div className="flex flex-col gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-1">
-                            Total de paquetes
-                          </label>
-                          <input
-                            type="text"
-                            value={totalPackages}
-                            onChange={(e) => setTotalPackages(e.target.value)}
-                            className="w-full border border-gray-300 rounded-xl p-2"
-                          />
-                          {errors.packages && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {errors.packages}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">
-                            Peso total aproximado (kg)
-                          </label>
-                          <input
-                            type="text"
-                            value={totalWeight}
-                            onChange={(e) => setTotalWeight(e.target.value)}
-                            className="w-full border border-gray-300 rounded-xl p-2"
-                          />
-                          {errors.weight && (
-                            <p className="text-red-500 text-sm mt-1">
-                              {errors.weight}
-                            </p>
-                          )}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1">
-                            Fecha y hora
-                          </label>
-                          <Select.Root
-                            value={selectedDate}
-                            onValueChange={(value) => setSelectedDate(value)}
-                          >
-                            {/* Trigger */}
-                            <Select.Trigger className="w-full px-3 py-2 cursor-pointer border border-gray-300 rounded-md flex justify-between items-center bg-white focus:outline-none focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]">
-                              <Select.Value placeholder="Seleccionar fecha" />
-                              <Select.Icon>
-                                <ChevronDownIcon />
-                              </Select.Icon>
-                            </Select.Trigger>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1">
+                          Fecha y hora
+                        </label>
+                        <Select.Root
+                          value={selectedDate}
+                          onValueChange={(value) => setSelectedDate(value)}
+                        >
+                          {/* Trigger */}
+                          <Select.Trigger className="w-full px-3 py-2 cursor-pointer border border-gray-300 rounded-md flex justify-between items-center bg-white focus:outline-none focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]">
+                            <Select.Value placeholder="Seleccionar fecha" />
+                            <Select.Icon>
+                              <ChevronDownIcon />
+                            </Select.Icon>
+                          </Select.Trigger>
 
-                            {/* Content */}
-                            <Select.Portal>
-                              <Select.Content className="z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                                <Select.Viewport className="p-2">
-                                  {availableDates.map((c) => {
-                                    const localDate = new Date(c.date);
-                                    const formattedDate =
-                                      localDate.toLocaleDateString("es-MX", {
-                                        weekday: "short",
-                                        day: "2-digit",
-                                        month: "short",
-                                        year: "numeric",
-                                      });
-                                    const value = c.key; 
+                          {/* Content */}
+                          <Select.Portal>
+                            <Select.Content className="z-[9999] bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                              <Select.Viewport className="p-2">
+                                {availableDates.map((c) => {
+                                  const localDate = new Date(c.date);
+                                  const formattedDate =
+                                    localDate.toLocaleDateString("es-MX", {
+                                      weekday: "short",
+                                      day: "2-digit",
+                                      month: "short",
+                                      year: "numeric",
+                                    });
+                                  const value = c.key;
 
-                                    return (
-                                      <Select.Item
-                                        key={value as unknown as string}
-                                        value={value as unknown as string}
-                                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between rounded-md"
-                                      >
-                                        <Select.ItemText>
-                                          {formattedDate} | {c.startHour} -{" "}
-                                          {c.endHour}
-                                        </Select.ItemText>
-                                        <Select.ItemIndicator>
-                                          <CheckIcon />
-                                        </Select.ItemIndicator>
-                                      </Select.Item>
-                                    );
-                                  })}
-                                </Select.Viewport>
-                              </Select.Content>
-                            </Select.Portal>
-                          </Select.Root>
-                        </div>
+                                  return (
+                                    <Select.Item
+                                      key={value as unknown as string}
+                                      value={value as unknown as string}
+                                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between rounded-md"
+                                    >
+                                      <Select.ItemText>
+                                        {formattedDate} | {c.startHour} -{" "}
+                                        {c.endHour}
+                                      </Select.ItemText>
+                                      <Select.ItemIndicator>
+                                        <CheckIcon />
+                                      </Select.ItemIndicator>
+                                    </Select.Item>
+                                  );
+                                })}
+                              </Select.Viewport>
+                            </Select.Content>
+                          </Select.Portal>
+                        </Select.Root>
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Step 3 - Fecha y hora */}
-                  {/*                   {step === 3 && (
+                {/* Step 3 - Fecha y hora */}
+                {/*                   {step === 3 && (
                     <div>
                       <h3 className="font-semibold mb-2">
                         Selecciona fecha y rango de horas
@@ -529,75 +535,75 @@ export function RecolectionDrawer({
                       </div>
                     </div>
                   )} */}
-                </div>
+              </div>
 
-                {/* Footer */}
-                <div className="p-6 border-t border-gray-300 flex justify-between gap-2">
-                  {step > 1 && (
-                    <button
-                      onClick={handleBack}
-                      className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition cursor-pointer flex items-center justify-center"
-                    >
-                      Atrás
-                    </button>
-                  )}
-                  {step === 1 ? (
-                    <button
-                      onClick={handleNext}
-                      className="px-4 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition flex-1 cursor-pointer flex items-center justify-center"
-                    >
-                      Siguiente
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleCreate}
-                      disabled={loadingCreateCollection}
-                      className={`w-full px-4 py-2 rounded-xl transition text-white flex items-center justify-center
+              {/* Footer */}
+              <div className="p-6 border-t border-gray-300 flex justify-between gap-2">
+                {step > 1 && (
+                  <button
+                    onClick={handleBack}
+                    className="px-4 py-2 border border-gray-300 rounded-xl hover:bg-gray-100 transition cursor-pointer flex items-center justify-center"
+                  >
+                    Atrás
+                  </button>
+                )}
+                {step === 1 ? (
+                  <button
+                    onClick={handleNext}
+                    className="px-4 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] transition flex-1 cursor-pointer flex items-center justify-center"
+                  >
+                    Siguiente
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleCreate}
+                    disabled={loadingCreateCollection}
+                    className={`w-full px-4 py-2 rounded-xl transition text-white flex items-center justify-center
 ${
   !totalWeight || !totalPackages || loadingCreateCollection || !selectedDate
     ? "bg-gray-400 cursor-not-allowed"
     : "bg-[#101f37] hover:bg-[#0e1b32] cursor-pointer"
 }`}
-                    >
-                      {loadingCreateCollection ? (
-                        <div className="flex items-center justify-center gap-2">
-                          <svg
-                            className="animate-spin h-5 w-5 text-white"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            ></circle>
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                            ></path>
-                          </svg>
-                          Generando recolección...
-                        </div>
-                      ) : (
-                        "Crear Recolección"
-                      )}
-                    </button>
-                  )}
-                </div>
-              </motion.div>
-            </Dialog.Content>
-          )}
-          <Toast
-            visible={toast.visible}
-            message={toast.message}
-            type={toast.type}
-            onClose={() => setToast({ ...toast, visible: false })}
-          />
+                  >
+                    {loadingCreateCollection ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <svg
+                          className="animate-spin h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                          ></path>
+                        </svg>
+                        Generando recolección...
+                      </div>
+                    ) : (
+                      "Crear Recolección"
+                    )}
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </Dialog.Content>
+        )}
+        <Toast
+          visible={toast.visible}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, visible: false })}
+        />
       </Dialog.Portal>
     </Dialog.Root>
   );

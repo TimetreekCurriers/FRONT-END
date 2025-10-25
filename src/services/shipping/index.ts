@@ -44,13 +44,28 @@ export const CreateQuoteSoloenvios = async (
 
   return data;
 };
+
+export const CreateQuoteSkydropx = async (
+  body: QuotationSoloenviosRequest
+): Promise<Quotation> => {
+  const { data } = await axios.post(`${NEXT_PUBLIC_API_URL}/skydropx/quote`, body, {
+    headers: {
+      "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY || "",
+    },
+  });
+
+  return data;
+};
+
+
 export const CreateShipmentSoloenvios = async (
   userid: string,
-  body: ShipmentSoloenviosRequest
+  body: ShipmentSoloenviosRequest,
+  source:string
 ): Promise<ShipmentCollectionInterface> => {
   const { data } = await axios.post(
     `${NEXT_PUBLIC_API_URL}/shipment`,
-    { userid, shipment: body },
+    { userid, shipment: body, source },
     {
       headers: {
         "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY || "",

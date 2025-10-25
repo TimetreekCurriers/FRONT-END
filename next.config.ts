@@ -19,7 +19,9 @@ const nextConfig: NextConfig = {
     NEXT_BANK_CLABE: process.env.NEXT_BANK_CLABE,
     NEXT_BANK_PLACEHODER: process.env.NEXT_BANK_PLACEHODER,
     NEXT_WHATSAPP_TIME_TREK: process.env.NEXT_WHATSAPP_TIME_TREK,
+    NEXT_QUOTE_OPTION: process.env.NEXT_QUOTE_OPTION,
     
+  
 
     // JWT secret de desarrollo (no se debe usar en producción)
     NEXT_JWT_SECRET:

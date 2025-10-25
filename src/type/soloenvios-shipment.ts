@@ -36,7 +36,7 @@ export interface ProductRequest {
       address_from: AddressRequest;
       address_to: AddressRequest;
       packages: PackageRequest[];
-    }
+    },
 
   }
 

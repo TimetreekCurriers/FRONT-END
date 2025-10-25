@@ -254,10 +254,10 @@ export default function OrdersPage() {
                     <span className={`font-medium`}>
                       {statusMap[order.status] || order.status}
                     </span>
-                    {order.soloenvios_tracking_number && (
+                    {order?.api_tracking_number && (
                       <div className="text-gray-500 text-sm">
                         {order.carrier_name.toUpperCase()} -{" "}
-                        {order.soloenvios_tracking_number}
+                        {order.api_tracking_number}
                       </div>
                     )}
                   </td>
@@ -330,10 +330,10 @@ export default function OrdersPage() {
                   >
                     {statusMap[order.status] || order.status}
                   </span>
-                  {order.soloenvios_tracking_number && (
+                  {order.api_tracking_number && (
                     <div className="text-gray-500 text-sm">
                       {order.carrier_name.toUpperCase()} -{" "}
-                      {order.soloenvios_tracking_number}
+                      {order.api_tracking_number}
                     </div>
                   )}
                 </div>

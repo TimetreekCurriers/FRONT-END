@@ -49,6 +49,21 @@ export const AvailableDatesSoloenvios = async (
   return data;
 };
 
+export const AvailableDatesSkydropx = async (
+  shipping_id: string
+): Promise<CollectionDatesInterface> => {
+  const { data } = await axios.get(
+    `${NEXT_PUBLIC_API_URL}/skydropx/collection-dates/${shipping_id}`,
+    {
+      headers: {
+        "x-api-key": process.env.NEXT_PUBLIC_X_API_KEY || "",
+      },
+    }
+  );
+
+  return data;
+};
+
 export const Create = async (
   userid: string,
   body: CollectionCreateRequest

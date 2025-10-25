@@ -82,3 +82,14 @@ export interface Quotation {
   rates: RateSoloenvios[];
   packages: Package[];
 }
+
+
+export interface RateSimple {
+  id: string;
+  courier: string;
+  logo: string;
+  type: string;
+  cost: number;
+  time: string;
+  source: 'soloenvios' | 'skydropx';
+}

@@ -50,7 +50,8 @@ export const logosCourier = [
 ];
 
 export const CourierOptionFromQuoteSoloenvios = (
-  quote: Quotation
+  quote: Quotation,
+  source:string
 ): Array<{
   id: string;
   courier: string;
@@ -58,6 +59,7 @@ export const CourierOptionFromQuoteSoloenvios = (
   type: string;
   cost: number;
   time: string;
+  source?:string
 }> => {
   let data: any = [];
 
@@ -73,6 +75,7 @@ export const CourierOptionFromQuoteSoloenvios = (
         type: rate?.provider_service_name,
         cost: rate?.total,
         time: `${rate?.days} Días`,
+        source
       });
     }
   });
@@ -84,7 +87,7 @@ export const buildPayloadshipmentSoloenvios = (
   address_from: FormFields,
   address_to: FormFields,
   rate_id: string,
-  consignment_note:string
+  consignment_note:string,
 ): ShipmentSoloenviosRequest => {
   return {
     shipment: {
