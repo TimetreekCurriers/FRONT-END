@@ -1,3 +1,4 @@
+
 export interface CollectionCollectionInterface {
   _id?: string; 
   userid: string;
@@ -6,12 +7,12 @@ export interface CollectionCollectionInterface {
     _id: string,
     carrier_name: string
   };
-  reference_soloenvios_shipment_id: string;
-  soloenvios_pickup_id:string,
+  reference_shipment_id: string;
+  pickup_id: string;
   packages: number;
-  carrier_name:string;
   total_weight: string;
   scheduled_from: Date; 
+  carrier_name: string;
   scheduled_to: Date;  
   name_address: string;
   company?: string;
@@ -26,6 +27,7 @@ export interface CollectionCollectionInterface {
   created_at?: Date;
   updated_at?: Date;
 }
+
 
 
 interface PickupDates {
