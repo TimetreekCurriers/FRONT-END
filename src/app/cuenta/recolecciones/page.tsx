@@ -67,7 +67,7 @@ export default function RecoleccionesPage() {
 
     const payloadCollection = {
       pickup: {
-        reference_shipment_id: shipment.soloenvios_id,
+        reference_shipment_id: shipment?.soloenvios_id ?? shipment?.skydropx_id,
         packages: Number(totalPackages),
         total_weight: Number(totalWeight)?.toFixed(1),
         scheduled_from: combineDateAndTime(
