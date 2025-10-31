@@ -14,7 +14,6 @@ import {
 } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { FindAll, Create } from "@/services/address"; // tus services
-import { CartaPorteData } from "@/app/utils";
 import CartaPorteSelect from "./cartaporte";
 import {
   CreateQuoteSoloenvios,
@@ -191,11 +190,7 @@ export function OrdenDrawerModern({
 
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredData = CartaPorteData.filter(
-    (item) =>
-      item.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.clave.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
 
   useEffect(() => {
     if (debouncedOriginCP) {

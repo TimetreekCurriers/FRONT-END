@@ -12,6 +12,8 @@ import { useAuth } from "@/components/authProvider";
 import {
   LogoDHL,
   LogoFedex,
+  LogoEstafeta,
+  LogoPaqueteExpress,
   STATUS_OPTIONS_SOLOENVIOS as STATUS_OPTIONS,
   statusMap,
 } from "@/app/utils";
@@ -208,8 +210,22 @@ export default function OrdersPage() {
                   className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   <td className="px-4 py-3 font-medium">
-                  <img width={"60px"} src={order?.carrier_name === "dhl" ? LogoDHL : LogoFedex} alt="Paquetería"></img>
-
+                    {order?.carrier_name === "dhl" && (
+                      <img width={"60px"} src={LogoDHL} alt="DHL"></img>
+                    )}
+                    {order?.carrier_name === "paquetexpress" && (
+                      <img
+                        width={"60px"}
+                        src={LogoPaqueteExpress}
+                        alt="paquetexpress"
+                      ></img>
+                    )}
+                    {order?.carrier_name === "fedex" && (
+                      <img width={"60px"} src={LogoFedex} alt="Fedex"></img>
+                    )}
+                    {order?.carrier_name === "estafeta" && (
+                      <img width={"60px"} src={LogoEstafeta} alt="Fedex"></img>
+                    )}
                   </td>
                   <td className="px-4 py-3 font-medium">{order._id}</td>
                   <td className="px-4 py-3">

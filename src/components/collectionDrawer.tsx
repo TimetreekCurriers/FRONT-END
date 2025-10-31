@@ -7,7 +7,12 @@ import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import * as Select from "@radix-ui/react-select";
 import "react-day-picker/dist/style.css";
 import { ShipmentCollectionInterface } from "@/type/shipment.interface";
-import { LogoFedex, LogoDHL } from "../app/utils/index";
+import {
+  LogoFedex,
+  LogoDHL,
+  LogoPaqueteExpress,
+  LogoEstafeta,
+} from "../app/utils/index";
 import {
   AvailableDatesSoloenvios,
   AvailableDatesSkydropx,
@@ -281,10 +286,21 @@ export function RecolectionDrawer({
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
                       {shipments.map((g) => {
                         const isSelected = selectedShipment?._id === g?._id;
-                        const carrierLogo =
-                          g.carrier_name?.toUpperCase() === "DHL"
-                            ? LogoDHL
-                            : LogoFedex;
+                        let carrierLogo = null;
+                        if (g.carrier_name?.toUpperCase() === "DHL") {
+                          carrierLogo = LogoDHL;
+                        }
+                        if (
+                          g.carrier_name?.toUpperCase() === "PAQUETEXPRESS"
+                        ) {
+                          carrierLogo = LogoPaqueteExpress;
+                        }
+                        if (g.carrier_name?.toUpperCase() === "FEDEX") {
+                          carrierLogo = LogoFedex;
+                        }
+                        if (g.carrier_name?.toUpperCase() === "ESTAFETA") {
+                          carrierLogo = LogoEstafeta;
+                        }
 
                         return (
                           <motion.button

@@ -13,7 +13,7 @@ import { CollectionCollectionInterface } from "@/type/collection";
 import { FindAll } from "@/services/collection";
 import { FindAllShipment } from "@/services/shipping";
 import { Create } from "@/services/collection";
-import { LogoDHL, LogoFedex } from "@/app/utils";
+import { LogoDHL, LogoFedex, LogoEstafeta, LogoPaqueteExpress } from "@/app/utils";
 
 // Interfaces
 
@@ -256,15 +256,22 @@ export default function RecoleccionesPage() {
                   className="border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   <td className="px-4 py-3 truncate">
-                    <img
-                      width={"60px"}
-                      src={
-                        r?.shipping_id?.carrier_name === "dhl"
-                          ? LogoDHL
-                          : LogoFedex
-                      }
-                      alt="Paquetería"
-                    ></img>
+                  {r?.shipping_id?.carrier_name === "dhl" && (
+                      <img width={"60px"} src={LogoDHL} alt="DHL"></img>
+                    )}
+                    {r?.shipping_id?.carrier_name === "paquetexpress" && (
+                      <img
+                        width={"60px"}
+                        src={LogoPaqueteExpress}
+                        alt="paquetexpress"
+                      ></img>
+                    )}
+                    {r?.shipping_id?.carrier_name === "fedex" && (
+                      <img width={"60px"} src={LogoFedex} alt="Fedex"></img>
+                    )}
+                    {r?.shipping_id?.carrier_name === "estafeta" && (
+                      <img width={"60px"} src={LogoEstafeta} alt="Fedex"></img>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     {r?.postal_code} - {r?.municipality} {r?.state}
