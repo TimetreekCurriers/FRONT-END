@@ -48,6 +48,7 @@ export interface RateSoloenvios {
   days: number | null;
   insurable: boolean | null;
   has_own_agreement: boolean;
+  pickup: boolean | null;
   own_agreement_amount: number | null;
   extra_fees: number | null;
   zone: string | null;
@@ -91,5 +92,6 @@ export interface RateSimple {
   type: string;
   cost: number;
   time: string;
+  pickup?: boolean | null;
   source: 'soloenvios' | 'skydropx';
 }

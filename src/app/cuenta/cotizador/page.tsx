@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import * as Select from "@radix-ui/react-select";
-import { CheckIcon, ChevronDownIcon } from "@radix-ui/react-icons";
+import { BoxIcon } from "@radix-ui/react-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { FormFields, OrdenDrawerModern } from "@/components/orderDrawer";
@@ -24,6 +24,7 @@ import {
 } from "@/type/soloenvios-quote";
 import { Toast } from "@/components/toast";
 import { ResponseFindAddressByCP } from "@/type/dipomex";
+import { HiOutlineClock } from "react-icons/hi";
 
 export interface CourierOption {
   id: string;
@@ -32,6 +33,7 @@ export interface CourierOption {
   type: string;
   cost: number;
   time: string;
+  pickup?: boolean | null;
   source: string;
 }
 
@@ -230,26 +232,29 @@ export default function CotizadorPage() {
       let dataStartSkydropx: any[] | null = null;
       let dataSkydropx: any[] | null = null;
 
-      if(process.env.NEXT_QUOTE_OPTION === "SOLOENVIOS" || process.env.NEXT_QUOTE_OPTION === "ALL") {
+      if (
+        process.env.NEXT_QUOTE_OPTION === "SOLOENVIOS" ||
+        process.env.NEXT_QUOTE_OPTION === "ALL"
+      ) {
         for (let i = 0; i < 5; i++) {
-          const quoteSoloenvios = await CreateQuoteSoloenvios(payloadSoloenvios);
+          const quoteSoloenvios = await CreateQuoteSoloenvios(
+            payloadSoloenvios
+          );
           dataSoloenvios = CourierOptionFromQuoteSoloenvios(
             quoteSoloenvios,
             "soloenvios"
           );
-  
+
           if (
             dataSoloenvios.length > 0 &&
             dataSoloenvios.length > dataStartSoloenvios?.length
           )
             dataStartSoloenvios = dataSoloenvios;
           if (dataSoloenvios && dataSoloenvios.length >= 3) break;
-  
+
           await sleep(1800);
         }
       }
-
-
 
       if (
         process.env.NEXT_QUOTE_OPTION === "SKYDROPX" ||
@@ -540,12 +545,13 @@ export default function CotizadorPage() {
                   >
                     {/* Desktop */}
                     <div className="hidden md:flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0 w-[45%]">
+                      {/* Courier info */}
+                      <div className="flex items-center gap-3 min-w-0 w-[28%]">
                         <Image
                           src={opt.logo}
                           alt={`${opt.courier} logo`}
-                          width={50}
-                          height={50}
+                          width={80}
+                          height={80}
                           className="rounded-md"
                         />
                         <div className="flex flex-col truncate">
@@ -558,11 +564,29 @@ export default function CotizadorPage() {
                         </div>
                       </div>
 
+                      {/* Nueva columna: Recolección */}
+                      <div className="w-[20%] flex items-center justify-center">
+                        {opt.pickup ? (
+                          <div className="flex items-center gap-2  font-medium">
+                            <HiOutlineClock className="w-4 h-4" />
+
+                            <span>Recolección disponible</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <BoxIcon className="h-5 w-5" />
+                            <span>No disponible</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Precio */}
                       <div className="w-[120px] text-center font-medium">
                         {opt.cost}
                         <span className="text-gray-500 text-base"> MXN</span>
                       </div>
 
+                      {/* Botón */}
                       <div className="flex justify-end relative group">
                         <button
                           onClick={() => {
@@ -570,27 +594,25 @@ export default function CotizadorPage() {
                           }}
                           disabled={balance < opt.cost}
                           className={`px-3 py-1 rounded-xl inline-block text-center transition-colors
-                        ${
-                          balance < opt.cost
-                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            : "bg-[#101f37] text-white hover:bg-[#0e1b32] cursor-pointer"
-                        }`}
+            ${
+              balance < opt.cost
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-[#101f37] text-white hover:bg-[#0e1b32] cursor-pointer"
+            }`}
                         >
                           Continuar
                         </button>
 
                         {balance < opt.cost && (
                           <div
-                            className="
-                        absolute -top-10 left-1/2 -translate-x-1/2
-                        bg-red-500 text-white text-sm font-medium
-                        px-3 py-1 rounded-lg shadow-lg
-                        opacity-0 group-hover:opacity-100
-                        transform translate-y-2 group-hover:translate-y-0
-                        transition-all duration-300
-                        pointer-events-none
-                        whitespace-nowrap
-                      "
+                            className="absolute -top-10 left-1/2 -translate-x-1/2
+              bg-red-500 text-white text-sm font-medium
+              px-3 py-1 rounded-lg shadow-lg
+              opacity-0 group-hover:opacity-100
+              transform translate-y-2 group-hover:translate-y-0
+              transition-all duration-300
+              pointer-events-none
+              whitespace-nowrap"
                           >
                             ⚠️ Saldo insuficiente
                           </div>
@@ -604,8 +626,8 @@ export default function CotizadorPage() {
                         <Image
                           src={opt.logo}
                           alt={`${opt.courier} logo`}
-                          width={50}
-                          height={50}
+                          width={80}
+                          height={80}
                           className="rounded-md"
                         />
                         <div className="flex flex-col truncate">
@@ -615,6 +637,22 @@ export default function CotizadorPage() {
                           <span className="text-gray-500 text-base">
                             {opt.time}
                           </span>
+
+                          {/* Recolección info */}
+                          <div className="mt-1 text-sm">
+                            {opt.pickup ? (
+                              <div className="flex items-center gap-1  font-medium">
+                                <HiOutlineClock className="w-4 h-4" />
+
+                                <span>Recolección disponible</span>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1 text-gray-400">
+                                <BoxIcon className="h-4 w-4" />
+                                <span>Recolección no disponible</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
@@ -630,27 +668,25 @@ export default function CotizadorPage() {
                           }}
                           disabled={balance < opt.cost}
                           className={`px-3 py-1 rounded-xl inline-block text-center transition-colors
-                        ${
-                          balance < opt.cost
-                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                            : "bg-[#101f37] text-white hover:bg-[#0e1b32] cursor-pointer"
-                        }`}
+            ${
+              balance < opt.cost
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-[#101f37] text-white hover:bg-[#0e1b32] cursor-pointer"
+            }`}
                         >
                           Continuar
                         </button>
 
                         {balance < opt.cost && (
                           <div
-                            className="
-                        absolute -top-10 right-0
-                        bg-red-500 text-white text-sm font-medium
-                        px-3 py-1 rounded-lg shadow-lg
-                        opacity-0 group-hover:opacity-100
-                        transform translate-y-2 group-hover:translate-y-0
-                        transition-all duration-300
-                        pointer-events-none
-                        whitespace-nowrap
-                      "
+                            className="absolute -top-10 right-0
+              bg-red-500 text-white text-sm font-medium
+              px-3 py-1 rounded-lg shadow-lg
+              opacity-0 group-hover:opacity-100
+              transform translate-y-2 group-hover:translate-y-0
+              transition-all duration-300
+              pointer-events-none
+              whitespace-nowrap"
                           >
                             ⚠️ Saldo insuficiente
                           </div>

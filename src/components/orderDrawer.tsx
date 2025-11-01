@@ -36,6 +36,7 @@ import {
 } from "@/type/soloenvios-quote";
 import { CourierOption } from "@/app/cuenta/cotizador/page";
 import { Toast } from "./toast";
+import { HiOutlineClock } from "react-icons/hi";
 
 // ==================== INTERFACES ====================
 
@@ -143,6 +144,7 @@ export function OrdenDrawerModern({
     message: "",
     type: "success",
   });
+  console.log("selectedCourierselectedCourier",selectedCourier)
 
   const [results, setResults] = useState<
     {
@@ -152,6 +154,7 @@ export function OrdenDrawerModern({
       type: string;
       cost: number;
       time: string;
+      pickup?: boolean | null;
       source: string;
     }[]
   >([]);
@@ -189,8 +192,6 @@ export function OrdenDrawerModern({
   const [loadingCreateOrder, setLoadingCreateOrder] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
-
-
 
   useEffect(() => {
     if (debouncedOriginCP) {
@@ -514,21 +515,26 @@ export function OrdenDrawerModern({
       let dataStartSkydropx: any[] | null = null;
       let dataSkydropx: any[] | null = null;
 
-      if(process.env.NEXT_QUOTE_OPTION === "SOLOENVIOS" || process.env.NEXT_QUOTE_OPTION === "ALL") {
+      if (
+        process.env.NEXT_QUOTE_OPTION === "SOLOENVIOS" ||
+        process.env.NEXT_QUOTE_OPTION === "ALL"
+      ) {
         for (let i = 0; i < 5; i++) {
-          const quoteSoloenvios = await CreateQuoteSoloenvios(payloadSoloenvios);
+          const quoteSoloenvios = await CreateQuoteSoloenvios(
+            payloadSoloenvios
+          );
           dataSoloenvios = CourierOptionFromQuoteSoloenvios(
             quoteSoloenvios,
             "soloenvios"
           );
-  
+
           if (
             dataSoloenvios.length > 0 &&
             dataSoloenvios.length > dataStartSoloenvios?.length
           )
             dataStartSoloenvios = dataSoloenvios;
           if (dataSoloenvios && dataSoloenvios.length >= 3) break;
-  
+
           await sleep(1800);
         }
       }
@@ -1074,6 +1080,15 @@ export function OrdenDrawerModern({
                                 <span className="text-gray-500">
                                   {opt.time}
                                 </span>
+
+                                {/* Recolección disponible */}
+                                {opt.pickup && (
+                                  <div className="flex items-center gap-1  text-xs mt-1">
+                                    <HiOutlineClock className="w-4 h-4" />
+
+                                    <span>Recolección disponible</span>
+                                  </div>
+                                )}
                               </div>
                             </div>
 

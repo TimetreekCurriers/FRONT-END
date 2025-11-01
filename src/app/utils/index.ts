@@ -72,7 +72,8 @@ export const CourierOptionFromQuoteSoloenvios = (
         type: rate?.provider_service_name,
         cost: rate?.total,
         time: `${rate?.days} Días`,
-        source
+        source,
+        pickup:rate?.pickup
       });
     }
   });
@@ -169,7 +170,7 @@ export const LogoFedex =
   "https://i.postimg.cc/nhMzktLM/CITYPNG-COM-Fed-Ex-Delivery-Company-Logo-HD-PNG-5000x5000.png";
 
   export const LogoDHL =
-  "https://assets.envia.com/uploads/logos/carriers/dhl.svg";
+  "https://i.postimg.cc/nr3g0f8j/paqueteexpress-1.png";
 
   export const LogoEstafeta =
   "https://i.postimg.cc/t4G0mrQH/Logo-Estafeta.png";
