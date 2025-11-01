@@ -1048,219 +1048,202 @@ export function OrdenDrawerModern({
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-4">
-                  {results && results.length > 0 && (
-                    <div className="w-full lg:w-[380px] p-6 pt-[24px] lg:pt-[80px] flex flex-col flex-shrink-0 bg-white lg:bg-gray-50 border-t border-gray-300 lg:border-t-0 relative">
-                      {/* Título */}
-                      <h2 className="text-lg font-semibold mb-4">
-                        Selecciona la paquetería
-                      </h2>
+  {results && results.length > 0 && (
+    <div className="w-full lg:w-[380px] p-6 pt-[24px] lg:pt-[80px] flex flex-col flex-shrink-0 bg-white lg:bg-gray-50 border-t border-gray-300 lg:border-t-0 relative">
+      {/* Título */}
+      <h2 className="text-lg font-semibold mb-4">Selecciona la paquetería</h2>
 
-                      <div className="flex flex-col gap-6 lg:bg-white lg:rounded-2xl lg:p-5 lg:border lg:border-gray-300">
-                        {results.map((opt, idx) => (
-                          <motion.div
-                            key={idx}
-                            className="flex flex-col p-3 border rounded-lg hover:shadow-sm transition-shadow bg-white gap-3"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: idx * 0.05 }}
-                          >
-                            {/* Fila 1: Logo + nombre + días */}
-                            <div className="flex items-center gap-2 md:gap-3 min-w-0">
-                              <Image
-                                src={opt.logo}
-                                alt={`${opt.courier} logo`}
-                                width={40}
-                                height={40}
-                                className="rounded-md flex-shrink-0"
-                              />
-                              <div className="flex flex-col truncate text-sm">
-                                <span className="font-medium truncate">
-                                  {opt.courier} {opt.type}
-                                </span>
-                                <span className="text-gray-500">
-                                  {opt.time}
-                                </span>
+      {/* Contenedor con scroll SOLO en desktop */}
+      <div
+        className="flex flex-col gap-6 lg:bg-white lg:rounded-2xl lg:p-5 lg:border lg:border-gray-300 
+        lg:overflow-y-auto lg:scrollbar-thin lg:scrollbar-thumb-gray-300 lg:scrollbar-track-gray-100"
+        style={{ maxHeight: "auto", "--tw-max-h-lg": "70vh" } as React.CSSProperties}
+      >
+        {results.map((opt, idx) => (
+          <motion.div
+            key={idx}
+            className="flex flex-col p-3 border rounded-lg hover:shadow-sm transition-shadow bg-white gap-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+          >
+            {/* Fila 1: Logo + nombre + días */}
+            <div className="flex items-center gap-2 md:gap-3 min-w-0">
+              <Image
+                src={opt.logo}
+                alt={`${opt.courier} logo`}
+                width={40}
+                height={40}
+                className="rounded-md flex-shrink-0"
+              />
+              <div className="flex flex-col truncate text-sm">
+                <span className="font-medium truncate">
+                  {opt.courier} {opt.type}
+                </span>
+                <span className="text-gray-500">{opt.time}</span>
 
-                                {/* Recolección disponible */}
-                                {opt.pickup && (
-                                  <div className="flex items-center gap-1  text-xs mt-1">
-                                    <HiOutlineClock className="w-4 h-4" />
+                {/* Recolección disponible */}
+                {opt.pickup && (
+                  <div className="flex items-center gap-1 text-xs mt-1">
+                    <HiOutlineClock className="w-4 h-4" />
+                    <span>Recolección disponible</span>
+                  </div>
+                )}
+              </div>
+            </div>
 
-                                    <span>Recolección disponible</span>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
+            {/* Fila 2: Costo + botón */}
+            <div className="flex items-center justify-between mt-2">
+              <div className="font-medium text-sm">
+                {opt.cost} <span className="text-gray-500">MXN</span>
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedCourier(opt);
+                  setResults([]);
+                }}
+                className="px-3 py-1 bg-[#101f37] text-white rounded-lg hover:bg-[#0e1b32] text-sm cursor-pointer"
+              >
+                Continuar
+              </button>
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
-                            {/* Fila 2: Costo + botón */}
-                            <div className="flex items-center justify-between mt-2">
-                              <div className="font-medium text-sm">
-                                {opt.cost}{" "}
-                                <span className="text-gray-500">MXN</span>
-                              </div>
-                              <button
-                                onClick={() => {
-                                  setSelectedCourier(opt);
-                                  setResults([]);
-                                }}
-                                className="px-3 py-1 bg-[#101f37] text-white rounded-lg hover:bg-[#0e1b32] text-sm cursor-pointer"
-                              >
-                                Continuar
-                              </button>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
+      {/* Overlay con blur y loading */}
+      {loadingQuote && (
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#101f37] border-t-transparent"></div>
+        </div>
+      )}
+    </div>
+  )}
 
-                      {/* Overlay con blur y loading */}
-                      {loadingQuote && (
-                        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10">
-                          <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#101f37] border-t-transparent"></div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                  {selectedCourier && results.length === 0 && !errorQuote && (
-                    <div className="w-full lg:w-[380px] p-6 pt-[24px] lg:pt-[80px] flex flex-col flex-shrink-0 bg-white lg:bg-gray-50 border-t border-gray-300 lg:border-t-0 relative">
-                      {/* Card principal */}
-                      <div className="flex flex-col gap-6 lg:bg-white lg:rounded-2xl lg:p-5 lg:border lg:border-gray-300 relative">
-                        <div className="flex items-center gap-4">
-                          <Image
-                            src={selectedCourier?.logo}
-                            alt={`${selectedCourier?.courier} logo`}
-                            width={50}
-                            height={50}
-                            className="rounded-md"
-                          />
-                          <div>
-                            <p className="font-semibold text-lg">
-                              {selectedCourier?.courier}
-                            </p>
-                            <p className="text-gray-600">
-                              {selectedCourier?.type}
-                            </p>
-                            <p className="text-gray-500 text-sm">
-                              {selectedCourier?.time}
-                            </p>
-                          </div>
-                        </div>
+  {selectedCourier && results.length === 0 && !errorQuote && (
+    <div className="w-full lg:w-[380px] p-6 pt-[24px] lg:pt-[80px] flex flex-col flex-shrink-0 bg-white lg:bg-gray-50 border-t border-gray-300 lg:border-t-0 relative">
+      {/* Card principal */}
+      <div className="flex flex-col gap-6 lg:bg-white lg:rounded-2xl lg:p-5 lg:border lg:border-gray-300 relative">
+        <div className="flex items-center gap-4">
+          <Image
+            src={selectedCourier?.logo}
+            alt={`${selectedCourier?.courier} logo`}
+            width={50}
+            height={50}
+            className="rounded-md"
+          />
+          <div>
+            <p className="font-semibold text-lg">{selectedCourier?.courier}</p>
+            <p className="text-gray-600">{selectedCourier?.type}</p>
+            <p className="text-gray-500 text-sm">{selectedCourier?.time}</p>
+          </div>
+        </div>
 
-                        {/* Dimensiones */}
-                        <div className="border-t border-gray-300 pt-4">
-                          <h3 className="font-semibold mb-2">
-                            Dimensiones del paquete
-                          </h3>
-                          <div className="flex items-center gap-6">
-                            <div className="space-y-1.5 text-sm">
-                              <p>Largo: {box.length} cm</p>
-                              <p>Ancho: {box.width} cm</p>
-                              <p>Alto: {box.height} cm</p>
-                              <p>Peso: {box.weight} kg</p>
-                            </div>
-                            <Image
-                              src="https://i.postimg.cc/HnNjw6kZ/dimension.png"
-                              alt="box"
-                              width={70}
-                              height={70}
-                              className="flex-shrink-0"
-                            />
-                          </div>
-                        </div>
+        {/* Dimensiones */}
+        <div className="border-t border-gray-300 pt-4">
+          <h3 className="font-semibold mb-2">Dimensiones del paquete</h3>
+          <div className="flex items-center gap-6">
+            <div className="space-y-1.5 text-sm">
+              <p>Largo: {box.length} cm</p>
+              <p>Ancho: {box.width} cm</p>
+              <p>Alto: {box.height} cm</p>
+              <p>Peso: {box.weight} kg</p>
+            </div>
+            <Image
+              src="https://i.postimg.cc/HnNjw6kZ/dimension.png"
+              alt="box"
+              width={70}
+              height={70}
+              className="flex-shrink-0"
+            />
+          </div>
+        </div>
 
-                        {/* Resumen */}
-                        <div className="border-t border-gray-300 pt-4">
-                          <div className="mb-4">
-                            <h3 className="font-semibold mb-2">📍 Origen</h3>
-                            <p className="text-sm text-gray-700">
-                              {originForm.name}
-                            </p>
-                            <p className="text-sm text-gray-700">
-                              {originForm.street} {originForm.extNumber},{" "}
-                              {originForm.neighborhood}
-                            </p>
-                            <p className="text-sm text-gray-700">
-                              {originForm.city}, {originForm.state}, CP{" "}
-                              {originForm.postalCode}
-                            </p>
-                            <p className="text-sm text-gray-700">
-                              {originForm.phone}
-                            </p>
-                          </div>
+        {/* Resumen */}
+        <div className="border-t border-gray-300 pt-4">
+          <div className="mb-4">
+            <h3 className="font-semibold mb-2">📍 Origen</h3>
+            <p className="text-sm text-gray-700">{originForm.name}</p>
+            <p className="text-sm text-gray-700">
+              {originForm.street} {originForm.extNumber},{" "}
+              {originForm.neighborhood}
+            </p>
+            <p className="text-sm text-gray-700">
+              {originForm.city}, {originForm.state}, CP {originForm.postalCode}
+            </p>
+            <p className="text-sm text-gray-700">{originForm.phone}</p>
+          </div>
 
-                          <div>
-                            <h3 className="font-semibold mb-2">📦 Destino</h3>
-                            <p className="text-sm text-gray-700">
-                              {destForm.name}
-                            </p>
-                            <p className="text-sm text-gray-700">
-                              {destForm.street} {destForm.extNumber},{" "}
-                              {destForm.neighborhood}
-                            </p>
-                            <p className="text-sm text-gray-700">
-                              {destForm.city}, {destForm.state}, CP{" "}
-                              {destForm.postalCode}
-                            </p>
-                            <p className="text-sm text-gray-700">
-                              {destForm.phone}
-                            </p>
-                          </div>
-                        </div>
+          <div>
+            <h3 className="font-semibold mb-2">📦 Destino</h3>
+            <p className="text-sm text-gray-700">{destForm.name}</p>
+            <p className="text-sm text-gray-700">
+              {destForm.street} {destForm.extNumber},{" "}
+              {destForm.neighborhood}
+            </p>
+            <p className="text-sm text-gray-700">
+              {destForm.city}, {destForm.state}, CP {destForm.postalCode}
+            </p>
+            <p className="text-sm text-gray-700">{destForm.phone}</p>
+          </div>
+        </div>
 
-                        {/* Total */}
-                        <div className="border-t border-gray-300 pt-4 mt-auto">
-                          <p className="text-lg font-semibold">
-                            Total: $ {selectedCourier?.cost} MXN
-                          </p>
-                          <button
-                            onClick={handleGenerateOrder}
-                            disabled={loadingCreateOrder || isFormIncomplete()}
-                            className={`mt-3 w-full px-4 py-2 rounded-xl transition text-white 
-    ${
-      loadingCreateOrder || isFormIncomplete()
-        ? "bg-gray-400 cursor-not-allowed"
-        : "bg-[#101f37] hover:bg-[#0e1b32] cursor-pointer"
-    }`}
-                          >
-                            {loadingCreateOrder ? (
-                              <div className="flex items-center justify-center gap-2">
-                                <svg
-                                  className="animate-spin h-5 w-5 text-white"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <circle
-                                    className="opacity-25"
-                                    cx="12"
-                                    cy="12"
-                                    r="10"
-                                    stroke="currentColor"
-                                    strokeWidth="4"
-                                  ></circle>
-                                  <path
-                                    className="opacity-75"
-                                    fill="currentColor"
-                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                                  ></path>
-                                </svg>
-                                Generando envío...
-                              </div>
-                            ) : (
-                              "Generar Envío"
-                            )}
-                          </button>
-                        </div>
-                      </div>
+        {/* Total */}
+        <div className="border-t border-gray-300 pt-4 mt-auto">
+          <p className="text-lg font-semibold">
+            Total: $ {selectedCourier?.cost} MXN
+          </p>
+          <button
+            onClick={handleGenerateOrder}
+            disabled={loadingCreateOrder || isFormIncomplete()}
+            className={`mt-3 w-full px-4 py-2 rounded-xl transition text-white 
+              ${
+                loadingCreateOrder || isFormIncomplete()
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#101f37] hover:bg-[#0e1b32] cursor-pointer"
+              }`}
+          >
+            {loadingCreateOrder ? (
+              <div className="flex items-center justify-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                Generando envío...
+              </div>
+            ) : (
+              "Generar Envío"
+            )}
+          </button>
+        </div>
+      </div>
 
-                      {/* Overlay con blur y loading */}
-                      {loadingQuote && (
-                        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10">
-                          <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#101f37] border-t-transparent"></div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+      {/* Overlay con blur y loading */}
+      {loadingQuote && (
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center rounded-2xl z-10">
+          <div className="animate-spin rounded-full h-10 w-10 border-4 border-[#101f37] border-t-transparent"></div>
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
               </motion.div>
             </Dialog.Content>
           )}
