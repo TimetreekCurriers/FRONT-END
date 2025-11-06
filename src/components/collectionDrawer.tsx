@@ -96,7 +96,6 @@ export function RecolectionDrawer({
   const handleSelectShipment = async (
     shipment: ShipmentCollectionInterface
   ) => {
-    console.log("knasdmnasm,dnsa,md", shipment);
     setSelectedShipment(shipment);
     setSelectedDate(undefined);
     setAvailableHours([]);

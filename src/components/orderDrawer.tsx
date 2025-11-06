@@ -145,7 +145,6 @@ export function OrdenDrawerModern({
     message: "",
     type: "success",
   });
-  console.log("selectedCourierselectedCourier", selectedCourier);
 
   const [results, setResults] = useState<
     {
@@ -250,7 +249,6 @@ export function OrdenDrawerModern({
   };
 
   const handleChangeCartaPorte = (val: string) => {
-    console.log("Carta porte seleccionada:", val);
     setConsignmentNote(val);
   };
 
