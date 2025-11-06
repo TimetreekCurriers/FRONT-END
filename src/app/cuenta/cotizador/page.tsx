@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import * as Select from "@radix-ui/react-select";
-import { BoxIcon } from "@radix-ui/react-icons";
+import {
+  BoxIcon,
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
+} from "@radix-ui/react-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { FormFields, OrdenDrawerModern } from "@/components/orderDrawer";
@@ -60,6 +65,7 @@ export default function CotizadorPage() {
     useState<QuotationSoloenviosRequest | null>(null);
   const [originForm, setOriginForm] = useState<FormFields>(initialFormState);
   const [destForm, setDestForm] = useState<FormFields>(initialFormState);
+  const [package_type, setPackage_type] = useState("");
 
   const [toast, setToast] = useState<{
     visible: boolean;
@@ -73,6 +79,15 @@ export default function CotizadorPage() {
 
   const userid = session?.user?.sub;
 
+  const packages = [
+    { key: "4G", value: "Caja de cartón" },
+    { key: "4F", value: "Tarima" },
+    { key: "5H4", value: "Saco (bolsa) de película de plástico" },
+    { key: "5M1", value: "Saco (bolsa) de papel de varias hojas" },
+    { key: "7H1", value: "Bulto de plástico" },
+    { key: "4B", value: "Caja de aluminio" },
+  ];
+
   const [form, setForm] = useState({
     postal_code_origin: "",
     postal_code_destination: "",
@@ -81,12 +96,13 @@ export default function CotizadorPage() {
     height: "",
     width: "",
     weight: "",
+    package_type: "4G",
   });
 
   const [dataToQuote, setDataToQuote] = useState({
     postal_code_origin: "",
     postal_code_destination: "",
-    /* packaging: "sobre", */
+    package_type: "",
     length: "",
     height: "",
     width: "",
@@ -104,12 +120,33 @@ export default function CotizadorPage() {
 
   if (!userid) return <p>No estás logueado</p>;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  type FormChangeTarget = {
+    name: string;
+    value: string;
+  };
+
+  const handleChange = (
+    e:
+      | React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+      | FormChangeTarget
+  ) => {
+    // Si viene de un Select Radix (no tiene e.target)
+    if (!("target" in e)) {
+      const { name, value } = e;
+      setForm({ ...form, [name]: value });
+      return;
+    }
+
     const { name, value } = e.target;
 
-    // Solo números
+    // Si es un <select> HTML estándar
+    if (e.target instanceof HTMLSelectElement) {
+      setForm({ ...form, [name]: value });
+      return;
+    }
+
+    // Si es un input: solo números
     if (/^\d*$/.test(value)) {
-      // Validación para códigos postales: entre 4 y 5 dígitos
       if (name === "postal_code_origin" || name === "postal_code_destination") {
         if (value.length <= 5) {
           setForm({ ...form, [name]: value });
@@ -337,6 +374,7 @@ export default function CotizadorPage() {
       height: "",
       width: "",
       weight: "",
+      package_type: "4G",
     });
     setResults(null);
   };
@@ -384,7 +422,7 @@ export default function CotizadorPage() {
       >
         <div className="flex flex-wrap gap-4">
           {/* Código Postal Origen */}
-          <div className="flex flex-col flex-1 min-w-[160px] w-full sm:w-1/2">
+          <div className="flex flex-col flex-1 min-w-[150px] max-w-[150px] w-full sm:w-1/2">
             <label className="text-base font-medium text-gray-700">
               C.P Origen
             </label>
@@ -402,7 +440,7 @@ export default function CotizadorPage() {
           </div>
 
           {/* Código Postal Destino */}
-          <div className="flex flex-col flex-1 min-w-[160px] w-full sm:w-1/2">
+          <div className="flex flex-col flex-1 min-w-[150px] max-w-[150px] w-full sm:w-1/2">
             <label className="text-base font-medium text-gray-700">
               C.P Destino
             </label>
@@ -417,6 +455,74 @@ export default function CotizadorPage() {
               title="El código postal debe tener entre 4 y 5 dígitos"
               className="mt-1 w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]"
             />
+          </div>
+
+          <div className="flex flex-col flex-1 min-w-[160px] w-full sm:w-1/2">
+            <label className="text-base font-medium text-gray-700">
+              Tipo de paquete
+            </label>
+
+            <Select.Root
+              value={form.package_type}
+              onValueChange={(value) =>
+                handleChange({ name: "package_type", value })
+              }
+            >
+              <Select.Trigger
+                className="
+        mt-1 w-full px-3 py-2 text-base border border-gray-300 rounded-md 
+        focus:outline-none focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]
+        flex justify-between items-center bg-white text-gray-700
+      "
+              >
+                <Select.Value placeholder="Empaque" className="text-gray-700" />
+                <Select.Icon>
+                  <ChevronDownIcon className="w-4 h-4 text-gray-500" />
+                </Select.Icon>
+              </Select.Trigger>
+
+              <Select.Portal>
+                <Select.Content
+                  position="popper"
+                  className="
+          overflow-hidden bg-white rounded-lg shadow-lg z-50 
+          animate-in fade-in slide-in-from-top-1 border border-gray-200
+          w-[420px] min-w-[var(--radix-select-trigger-width)] max-w-[95vw]
+        "
+                >
+                  <Select.ScrollUpButton className="flex items-center justify-center text-gray-500 py-1">
+                    <ChevronUpIcon className="w-4 h-4" />
+                  </Select.ScrollUpButton>
+
+                  <Select.Viewport className="p-1 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                    {packages.map((item) => (
+                      <Select.Item
+                        key={item.key}
+                        value={item.key}
+                        className="
+                relative flex items-start px-8 py-2 text-sm rounded-md cursor-pointer select-none 
+                hover:bg-gray-100 focus:bg-gray-100 focus:outline-none text-gray-700
+              "
+                      >
+                        <Select.ItemText>
+                          <span className="block whitespace-normal break-words text-left">
+                            {item.value}
+                          </span>
+                        </Select.ItemText>
+
+                        <Select.ItemIndicator className="absolute left-2 inline-flex items-center">
+                          <CheckIcon className="w-3 h-3 text-gray-500" />
+                        </Select.ItemIndicator>
+                      </Select.Item>
+                    ))}
+                  </Select.Viewport>
+
+                  <Select.ScrollDownButton className="flex items-center justify-center text-gray-500 py-1">
+                    <ChevronDownIcon className="w-4 h-4" />
+                  </Select.ScrollDownButton>
+                </Select.Content>
+              </Select.Portal>
+            </Select.Root>
           </div>
 
           {["length", "height", "width", "weight"].map((field) => {
@@ -435,7 +541,7 @@ export default function CotizadorPage() {
             return (
               <div
                 key={field}
-                className="flex flex-col flex-1 min-w-[120px] max-w-[130px] w-full sm:w-1/2"
+                className="flex flex-col flex-1 min-w-[120px] max-w-[120px] w-full sm:w-1/2"
               >
                 <label className="text-base font-medium text-gray-700">
                   {labelMap[field]}
@@ -574,8 +680,8 @@ export default function CotizadorPage() {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2 text-gray-400">
-                            <BoxIcon className="h-5 w-5" />
-                            <span>No disponible</span>
+                            <HiOutlineClock className="h-5 w-5" />
+                            <span>Recolección no disponible</span>
                           </div>
                         )}
                       </div>
@@ -648,7 +754,7 @@ export default function CotizadorPage() {
                               </div>
                             ) : (
                               <div className="flex items-center gap-1 text-gray-400">
-                                <BoxIcon className="h-4 w-4" />
+                                <HiOutlineClock className="h-4 w-4" />
                                 <span>Recolección no disponible</span>
                               </div>
                             )}
@@ -716,6 +822,7 @@ export default function CotizadorPage() {
             height: dataToQuote.height,
             width: dataToQuote.width,
             weight: dataToQuote.weight,
+            package_type: dataToQuote.package_type,
           }}
           userid={userid}
           setErrorQuote={setErrorQuote}

@@ -86,6 +86,8 @@ export const buildPayloadshipmentSoloenvios = (
   address_to: FormFields,
   rate_id: string,
   consignment_note:string,
+  package_type:string
+
 ): ShipmentSoloenviosRequest => {
   return {
     shipment: {
@@ -122,7 +124,7 @@ export const buildPayloadshipmentSoloenvios = (
           package_number: "1",
           package_protected: false,
           consignment_note,
-          package_type: "4G",
+          package_type,
           declared_value: 0,
         },
       ],
