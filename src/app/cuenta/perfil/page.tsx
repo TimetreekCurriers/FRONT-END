@@ -252,7 +252,7 @@ export default function MiCuentaPage() {
           <button
             type="button"
             onClick={handleReset}
-            className="px-6 py-2 bg-transparent text-gray-700 border border-gray-400 rounded-xl hover:bg-gray-100 transition-all duration-300 font-medium cursor-pointer"
+            className="px-6 py-2 bg-transparent text-gray-700 border border-gray-400 rounded-xl hover:bg-gray-100 transition-all duration-300 font-medium cursor-pointer cursor-pointer"
           >
             Limpiar
           </button>

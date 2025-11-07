@@ -1030,7 +1030,7 @@ export function OrdenDrawerModern({
                     </h2>
                     <button
                       type="button"
-                      className="text-sm text-[#101f37] hover:underline"
+                      className="text-sm text-[#101f37] hover:underline cursor-pointer"
                       onClick={() => {
                         setDestForm(initialFormState);
                         setSaveDest(false);

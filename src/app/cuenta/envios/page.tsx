@@ -16,6 +16,7 @@ import {
   LogoPaqueteExpress,
   STATUS_OPTIONS_SOLOENVIOS as STATUS_OPTIONS,
   statusMap,
+  LogoUps,
 } from "@/app/utils";
 const PAGE_SIZE = 5;
 
@@ -225,6 +226,9 @@ export default function OrdersPage() {
                     )}
                     {order?.carrier_name === "estafeta" && (
                       <img width={"60px"} src={LogoEstafeta} alt="Fedex"></img>
+                    )}
+                    {order?.carrier_name === "ups" && (
+                      <img width={"60px"} src={LogoUps} alt="UPS"></img>
                     )}
                   </td>
                   <td className="px-4 py-3 font-medium">{order._id}</td>

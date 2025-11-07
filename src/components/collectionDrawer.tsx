@@ -12,6 +12,7 @@ import {
   LogoDHL,
   LogoPaqueteExpress,
   LogoEstafeta,
+  LogoUps,
 } from "../app/utils/index";
 import {
   AvailableDatesSoloenvios,
@@ -299,6 +300,9 @@ export function RecolectionDrawer({
                         }
                         if (g.carrier_name?.toUpperCase() === "ESTAFETA") {
                           carrierLogo = LogoEstafeta;
+                        }
+                        if (g.carrier_name?.toUpperCase() === "UPS") {
+                          carrierLogo = LogoUps;
                         }
 
                         return (

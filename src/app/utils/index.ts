@@ -35,7 +35,7 @@ export const buildPayloadQuoteSoloenvios = (
         area_level3: address_to?.codigo_postal?.colonias?.[0],
       },
       parcels: parcels,
-      requested_carriers: ["fedex", "dhl", "estafeta", "paquetexpress"],
+      requested_carriers: ["fedex", "dhl", "estafeta", "paquetexpress","ups"],
       colonies_to:address_to?.codigo_postal?.colonias ?? [],
       colonies_from:address_from?.codigo_postal?.colonias ?? []
     },
@@ -65,6 +65,7 @@ export const CourierOptionFromQuoteSoloenvios = (
       if(rate?.provider_name === "estafeta") logo= LogoEstafeta
       if(rate?.provider_name === "paquetexpress") logo= LogoPaqueteExpress
       if(rate?.provider_name === "fedex") logo= LogoFedex
+      if(rate?.provider_name === "ups") logo= LogoUps
       data.push({
         id: rate?.id,
         courier: rate?.provider_display_name,
@@ -181,6 +182,10 @@ export const LogoFedex =
   "https://i.postimg.cc/hGG4sSdR/Paquetexpress.png";
 
 
+  export const LogoUps =
+  "https://i.postimg.cc/90Jqg7n0/Captura-de-pantalla-2025-11-07-a-la-s-4-34-36-p-m-removebg-preview.png";
+
+ 
 
 
   // Opcionalmente, puedes definir la interfaz para un mejor tipado en TypeScript:
