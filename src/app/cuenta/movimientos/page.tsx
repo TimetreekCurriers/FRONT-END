@@ -153,15 +153,14 @@ export default function MovimientosPage() {
     try {
       await loadMercadoPago();
       /*@ts-ignore*/
-      const mp = new window.MercadoPago(
-        process.env.NEXT_MERCADOPAGO_KEY,
-        { locale: "en-US" }
-      );
+      const mp = new window.MercadoPago(process.env.NEXT_MERCADOPAGO_KEY, {
+        locale: "en-US",
+      });
       const [month, year] = expiry.split("/");
       const fullYear = `20${year}`;
-
+      const cleanCardNumber = cardNumber?.replace(/\s+/g, "");
       const cardToken = await mp.createCardToken({
-        cardNumber,
+        cardNumber: cleanCardNumber,
         cardholderName: cardHolder,
         cardExpirationMonth: month,
         cardExpirationYear: fullYear,
