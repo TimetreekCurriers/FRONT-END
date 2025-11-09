@@ -153,21 +153,24 @@ export default function MovimientosPage() {
     try {
       await loadMercadoPago();
       /*@ts-ignore*/
-      const mp = new window.MercadoPago("SKDMSKMDKSMDSK", { locale: "en-US" });
+      const mp = new window.MercadoPago(
+        process.env.NEXT_MERCADOPAGO_KEY,
+        { locale: "en-US" }
+      );
       const [month, year] = expiry.split("/");
       const fullYear = `20${year}`;
 
-      /*       const cardToken = await mp.createCardToken({
+      const cardToken = await mp.createCardToken({
         cardNumber,
         cardholderName: cardHolder,
         cardExpirationMonth: month,
         cardExpirationYear: fullYear,
         securityCode: cvv,
-      }); */
+      });
 
       await Create(userid, {
         amount: parseFloat(amount),
-        token: "cardToken.id",
+        token: cardToken?.id,
         userid,
         reason: "Recarga a wallet",
       });
@@ -572,7 +575,7 @@ export default function MovimientosPage() {
         clabe={process.env.NEXT_BANK_CLABE}
         beneficiary={process.env.NEXT_BANK_PLACEHODER}
         whatsapp={process.env.NEXT_WHATSAPP_TIME_TREK}
-        
+
         // qrUrl="/path/to/qr.png" // opcional
       />
     </motion.div>

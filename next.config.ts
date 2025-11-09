@@ -14,6 +14,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_NEXTAUTH_URL:
       process.env.NEXT_AUTH_URL ,
     NEXT_PUBLIC_X_API_KEY: process.env.NEXT_PUBLIC_X_API_KEY,
+    NEXT_MERCADOPAGO_KEY : process.env.NEXT_MERCADOPAGO_KEY,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXT_BANK_NAME: process.env.NEXT_BANK_NAME,
     NEXT_BANK_CLABE: process.env.NEXT_BANK_CLABE,
