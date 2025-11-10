@@ -289,7 +289,7 @@ export default function CotizadorPage() {
             dataStartSoloenvios = dataSoloenvios;
           if (dataSoloenvios && dataSoloenvios.length >= 3 && i > 0) break;
 
-          await sleep(1500);
+          await sleep(4000);
         }
       }
 
@@ -311,7 +311,7 @@ export default function CotizadorPage() {
             dataStartSkydropx = dataSkydropx;
           if (dataSkydropx && dataSkydropx.length >= 3 && i > 0) break;
 
-          await sleep(1500);
+          await sleep(3000);
         }
       }
 
