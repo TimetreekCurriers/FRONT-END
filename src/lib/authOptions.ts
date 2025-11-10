@@ -42,7 +42,7 @@ export const authOptions: NextAuthOptions = {
             accessToken: result.access_token,
           };
         } catch (error) {
-          console.error("Error en authorize:", error);
+          console.error("Error authorize:", error);
           return null;
         }
       },
