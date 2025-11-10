@@ -171,6 +171,7 @@ export default function MovimientosPage() {
         amount: parseFloat(amount),
         token: cardToken?.id,
         userid,
+        type: "add",
         reason: "Recarga a wallet",
       });
       const user = await getUser(userid);
