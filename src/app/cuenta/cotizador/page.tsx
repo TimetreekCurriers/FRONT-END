@@ -287,9 +287,9 @@ export default function CotizadorPage() {
             dataSoloenvios.length > dataStartSoloenvios?.length
           )
             dataStartSoloenvios = dataSoloenvios;
-          if (dataSoloenvios && dataSoloenvios.length >= 3) break;
+          if (dataSoloenvios && dataSoloenvios.length >= 3 && i > 0) break;
 
-          await sleep(1800);
+          await sleep(1500);
         }
       }
 
@@ -309,9 +309,9 @@ export default function CotizadorPage() {
             dataSkydropx.length > dataStartSkydropx?.length
           )
             dataStartSkydropx = dataSkydropx;
-          if (dataSkydropx && dataSkydropx.length >= 3) break;
+          if (dataSkydropx && dataSkydropx.length >= 3 && i > 0) break;
 
-          await sleep(1800);
+          await sleep(1500);
         }
       }
 
@@ -567,7 +567,7 @@ export default function CotizadorPage() {
 
         {/* Botones */}
         <div
-          style={{ marginBottom: "32px" }}
+          style={{ marginBottom: "8px" }}
           className="flex justify-end mt-2 gap-4 flex-wrap"
         >
           <button

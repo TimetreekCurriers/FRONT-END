@@ -173,7 +173,7 @@ export const LogoFedex =
   "https://i.postimg.cc/nhMzktLM/CITYPNG-COM-Fed-Ex-Delivery-Company-Logo-HD-PNG-5000x5000.png";
 
   export const LogoDHL =
-  "https://i.postimg.cc/nr3g0f8j/paqueteexpress-1.png";
+  "https://i.postimg.cc/9XsFPv5v/Captura-de-pantalla-2025-11-09-a-la-s-7-27-42-p-m.png";
 
   export const LogoEstafeta =
   "https://i.postimg.cc/t4G0mrQH/Logo-Estafeta.png";
