@@ -84,7 +84,7 @@ export default function RegisterPage() {
     try {
       await register(invite, form);
       setSuccess(true);
-      setTimeout(() => router.push("/auth/login"), 1500);
+      setTimeout(() => router.push("/auth/iniciar-sesion"), 1500);
     } catch (err) {
       console.error(err);
       setError("Ocurrió un error al registrar. Intenta de nuevo.");
@@ -117,7 +117,7 @@ export default function RegisterPage() {
           </p>
           <div className="mt-4">
             <button
-              onClick={() => router.push("/auth/login")}
+              onClick={() => router.push("/auth/iniciar-sesion")}
               className="text-[#101f37] hover:underline font-medium"
             >
               Volver al inicio de sesión
@@ -138,7 +138,7 @@ export default function RegisterPage() {
       {/* Lado izquierdo azul con logo */}
       <div
         className="w-full md:w-1/4 bg-[#101f37] flex justify-center items-center py-8 cursor-pointer"
-        onClick={() => router.push("/auth/login")}
+        onClick={() => router.push("/auth/iniciar-sesion")}
       >
         <Image
           src="https://i.postimg.cc/y6F7LtXv/Captura-de-pantalla-2025-09-19-a-la-s-8-14-04-p-m.png"

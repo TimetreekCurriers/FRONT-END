@@ -67,7 +67,7 @@ export default function ResetPasswordPage() {
       {/* Lado izquierdo con logo */}
       <div
         className="w-full md:w-1/4 bg-[#101f37] flex justify-center items-center py-8 cursor-pointer"
-        onClick={() => router.push("/auth/login")}
+        onClick={() => router.push("/auth/iniciar-sesion")}
       >
         <Image
           src="https://i.postimg.cc/y6F7LtXv/Captura-de-pantalla-2025-09-19-a-la-s-8-14-04-p-m.png"
