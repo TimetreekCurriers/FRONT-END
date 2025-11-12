@@ -90,6 +90,7 @@ export default function RegisterPage() {
         phone: form.telefono,
         password: form.password,
       });
+      
       setSuccess(true);
       setTimeout(() => router.push("/auth/iniciar-sesion"), 1500);
     } catch (err) {
