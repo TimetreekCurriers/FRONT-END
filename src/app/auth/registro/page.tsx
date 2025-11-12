@@ -82,7 +82,14 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(invite, form);
+      await register(invite, {
+        first_name: form.nombre,
+        last_name: form.apellido_paterno,
+        second_last_name: form.apellido_materno,
+        email: form.email,
+        phone: form.telefono,
+        password: form.password,
+      });
       setSuccess(true);
       setTimeout(() => router.push("/auth/iniciar-sesion"), 1500);
     } catch (err) {
