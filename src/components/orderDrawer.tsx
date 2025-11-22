@@ -895,7 +895,13 @@ export function OrdenDrawerModern({
                     errors[key] ? "border-red-500" : "border-gray-300"
                   }`}
                   rows={3}
+                  maxLength={30}
                 />
+                
+                <span className="text-gray-500 text-sm mt-1">
+                  Máximo 30 caracteres
+                </span>
+          
                 {errors[key] && (
                   <span className="text-red-500 text-sm mt-1">
                     {errors[key]}
@@ -904,7 +910,10 @@ export function OrdenDrawerModern({
               </div>
             );
           }
-
+          
+          
+          
+          
           return (
             <div key={key} className={inputGridClasses}>
               <label className="text-base font-medium text-gray-700">

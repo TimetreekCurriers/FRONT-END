@@ -141,35 +141,36 @@ export default function AddressBookPage() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
-
-    // 🔹 Limitar longitud del campo "name" a 30 caracteres
+    const { name, value, maxLength } = e.target;
+  
+    if (maxLength > 0 && value.length > maxLength) return;
+  
     if (name === "name" && value.length > 30) return;
-
-    // Solo números para teléfono y postal_code
+  
     if (name === "phone" || name === "postal_code") {
       const numericValue = value.replace(/\D/g, "");
       setRecipient((prev) => ({ ...prev, [name]: numericValue }));
       return;
     }
-
-    // Solo letras y espacios para ciertos campos
+  
+    // 🔹 Solo letras y espacios para ciertos campos
     const textOnlyFields = [
       "name",
       "state",
       "municipality",
       "neighborhood",
-      "street",
     ];
+  
     if (textOnlyFields.includes(name)) {
       const textValue = value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, "");
       setRecipient((prev) => ({ ...prev, [name]: textValue }));
       return;
     }
-
-    // Otros campos normales
+  
+    // 🔹 Otros campos normales
     setRecipient((prev) => ({ ...prev, [name]: value }));
   };
+  
 
   const handleCountryChange = (value: string) => {
     setRecipient((prev) => ({ ...prev, country: value }));
@@ -184,7 +185,6 @@ export default function AddressBookPage() {
       "state",
       "municipality",
       "neighborhood",
-      "street",
     ];
     const textRegex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
 
@@ -539,122 +539,131 @@ export default function AddressBookPage() {
                   : "Agregar Destinatario"}
               </h3>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="flex flex-wrap gap-4">
-                  {[
-                    { name: "name", label: "Nombre", maxLength: 30 },
-                    { name: "email", label: "Email" },
-                    { name: "phone", label: "Teléfono" },
-                    { name: "company", label: "Compañía (Opcional)" },
-                    { name: "postal_code", label: "Código Postal" },
-                    { name: "state", label: "Estado" },
-                    { name: "municipality", label: "Municipio" },
-                    { name: "neighborhood", label: "Colonia" },
-                    { name: "street", label: "Calle" },
-                    { name: "number_ext", label: "Número Ext." },
-                    { name: "number_int", label: "Número Int. (Opcional)" },
-                    { name: "references", label: "Referencias" },
-                  ].map((field) => (
-                    <div
-                      key={field.name}
-                      className="flex flex-col flex-1 min-w-[170px]"
-                    >
-                      <label className="text-gray-700 mb-1 font-medium">
-                        {field.label}
-                      </label>
-                      <input
-                        type="text"
-                        name={field.name}
-                        value={
-                          recipient[
-                            field.name as keyof AddressCollectionInterface
-                          ] !== undefined
-                            ? String(
-                                recipient[
-                                  field.name as keyof AddressCollectionInterface
-                                ]
-                              )
-                            : ""
-                        }
-                        onChange={handleChange}
-                        className={`${inputClass} ${
-                          errors[field.name] ? "border-red-500" : ""
-                        }`}
-                      />
-                      {errors[field.name] && (
-                        <span className="text-red-500 text-sm mt-1">
-                          {errors[field.name]}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+{/* Form */}
+<form onSubmit={handleSubmit} className="space-y-4">
+  <div className="flex flex-wrap gap-4">
+    {[
+      { name: "name", label: "Nombre", maxLength: 30 },
+      { name: "email", label: "Email" },
+      { name: "phone", label: "Teléfono" },
+      { name: "company", label: "Compañía (Opcional)" },
+      { name: "postal_code", label: "Código Postal" },
+      { name: "state", label: "Estado" },
+      { name: "municipality", label: "Municipio" },
+      { name: "neighborhood", label: "Colonia" },
+      { name: "street", label: "Calle" },
+      { name: "number_ext", label: "Número Ext." },
+      { name: "number_int", label: "Número Int. (Opcional)" },
+      { name: "references", label: "Referencias", maxLength: 30 },
+    ].map((field) => {
+      const value =
+        recipient[field.name as keyof AddressCollectionInterface] !== undefined
+          ? String(
+              recipient[field.name as keyof AddressCollectionInterface]
+            )
+          : "";
 
-                  <div className="flex flex-col flex-1 min-w-[170px]">
-                    <label className="text-gray-700 mb-1 font-medium">
-                      País
-                    </label>
-                    <Select.Root
-                      value={recipient.country}
-                      onValueChange={handleCountryChange}
-                    >
-                      <Select.Trigger className="w-full px-3 py-2 cursor-pointer border border-gray-300 rounded-md flex justify-between items-center bg-white focus:outline-none focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]">
-                        <Select.Value>
-                          <span className="flex items-center gap-2">
-                            {
-                              countries.find(
-                                (c) => c.name === recipient.country
-                              )?.emoji
-                            }{" "}
-                            {recipient.country}
-                          </span>
-                        </Select.Value>
-                        <Select.Icon>
-                          <ChevronDownIcon />
-                        </Select.Icon>
-                      </Select.Trigger>
-                      <Select.Content className="absolute z-50 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-                        <Select.Viewport>
-                          {countries.map((c) => (
-                            <Select.Item
-                              key={c.code}
-                              value={c.name}
-                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
-                            >
-                              <span>{c.emoji}</span>
-                              <span>{c.name}</span>
-                              <Select.ItemIndicator>
-                                <CheckIcon />
-                              </Select.ItemIndicator>
-                            </Select.Item>
-                          ))}
-                        </Select.Viewport>
-                      </Select.Content>
-                    </Select.Root>
-                  </div>
-                </div>
+      return (
+        <div
+          key={field.name}
+          className="flex flex-col flex-1 min-w-[170px]"
+        >
+          <label className="text-gray-700 mb-1 font-medium">
+            {field.label}
+          </label>
 
-                {/* Botones */}
-                <div className="flex justify-end gap-3 mt-4">
-                  <button
-                    type="button"
-                    onClick={() => setModalOpen(false)}
-                    className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loadingSave}
-                    className="px-6 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] hover:shadow-2xl cursor-pointer transition-all duration-300 font-medium flex items-center justify-center gap-2"
-                  >
-                    Guardar
-                    {loadingSave && (
-                      <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5"></span>
-                    )}
-                  </button>
-                </div>
-              </form>
+          <input
+            type="text"
+            name={field.name}
+            maxLength={field.maxLength}
+            value={value}
+            onChange={handleChange}
+            className={`${inputClass} ${
+              errors[field.name] ? "border-red-500" : ""
+            }`}
+          />
+
+          {errors[field.name] && (
+            <span className="text-red-500 text-sm mt-1">
+              {errors[field.name]}
+            </span>
+          )}
+
+          {field.maxLength && (
+            <span className="text-gray-400 text-xs mt-1">
+              {value.length} / {field.maxLength} caracteres
+            </span>
+          )}
+        </div>
+      );
+    })}
+
+    <div className="flex flex-col flex-1 min-w-[170px]">
+      <label className="text-gray-700 mb-1 font-medium">
+        País
+      </label>
+      <Select.Root
+        value={recipient.country}
+        onValueChange={handleCountryChange}
+      >
+        <Select.Trigger className="w-full px-3 py-2 cursor-pointer border border-gray-300 rounded-md flex justify-between items-center bg-white focus:outline-none focus:ring-1 focus:ring-[#101f37] focus:border-[#101f37]">
+          <Select.Value>
+            <span className="flex items-center gap-2">
+              {
+                countries.find(
+                  (c) => c.name === recipient.country
+                )?.emoji
+              }{" "}
+              {recipient.country}
+            </span>
+          </Select.Value>
+          <Select.Icon>
+            <ChevronDownIcon />
+          </Select.Icon>
+        </Select.Trigger>
+        <Select.Content className="absolute z-50 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+          <Select.Viewport>
+            {countries.map((c) => (
+              <Select.Item
+                key={c.code}
+                value={c.name}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2"
+              >
+                <span>{c.emoji}</span>
+                <span>{c.name}</span>
+                <Select.ItemIndicator>
+                  <CheckIcon />
+                </Select.ItemIndicator>
+              </Select.Item>
+            ))}
+          </Select.Viewport>
+        </Select.Content>
+      </Select.Root>
+    </div>
+  </div>
+
+  {/* Botones */}
+  <div className="flex justify-end gap-3 mt-4">
+    <button
+      type="button"
+      onClick={() => setModalOpen(false)}
+      className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 cursor-pointer"
+    >
+      Cancelar
+    </button>
+    <button
+      type="submit"
+      disabled={loadingSave}
+      className="px-6 py-2 bg-[#101f37] text-white rounded-xl hover:bg-[#0e1b32] hover:shadow-2xl cursor-pointer transition-all duration-300 font-medium flex items-center justify-center gap-2"
+    >
+      Guardar
+      {loadingSave && (
+        <span className="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5"></span>
+      )}
+    </button>
+  </div>
+</form>
+
             </motion.div>
           </motion.div>
         )}
